@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Administración · Olimpiadas FICAM 2026</title>
+<link rel="icon" href="assets/logo-ficam.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head><body>
+<header class="band"><div class="wrap">
+  <img class="logo-img" alt="Escudo de la Universidad Mayor, Real y Pontificia de San Francisco Xavier de Chuquisaca" src="assets/logo-uni.png">
+  <div class="t"><span class="u">Universidad Mayor, Real y Pontificia de San Francisco Xavier de Chuquisaca</span><span class="f">Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas</span><span class="o">Olimpiadas FICAM 2026</span></div>
+  <img class="logo-img" alt="Logo de la Facultad de Ingeniería FICAM" src="assets/logo-ficam.png">
+</div></header>
+<div class="wrap">
+<div id="net" hidden></div>
+<nav class="tabs" role="tablist" id="a-tabs" hidden>
+  <button role="tab" aria-selected="true" data-v="panel">Panel de control</button>
+  <button role="tab" aria-selected="false" data-v="sim">Asignación de plazas</button>
+  <button role="tab" aria-selected="false" id="a-salir" style="margin-left:auto">Salir</button>
+</nav>
+<section class="view" id="v-login">
+  <h2>Administración</h2>
+  <div class="card" style="max-width:460px"><p class="muted">Acceso solo para la organización. Escribe tu correo y te enviaremos un enlace para entrar, sin contraseña.</p>
+    <label for="l-mail">Correo</label><input id="l-mail" type="email" autocomplete="email" inputmode="email">
+    <p style="margin-top:12px"><button class="btn red" id="l-send" type="button">Enviarme el enlace</button></p>
+    <div id="l-msg" aria-live="polite"></div></div>
+</section>
+<!-- ===================== PANEL ===================== -->
+<section class="view" id="v-panel" hidden>
+  <h2>Panel de control</h2>
+  
+  <div class="seg" role="group" aria-label="Vista del panel">
+    <button id="pm-gen" aria-pressed="true">Vista general</button>
+    <button id="pm-dep" aria-pressed="false">Por departamento</button>
+    <button id="pm-ges" aria-pressed="false">Gestión</button>
+  </div>
+  <div id="pv-gen">
+  <div class="kpis" id="p-kpis"></div>
+  <div class="card"><h3>Inscritos por área</h3><div id="p-areas"></div></div>
+  <div class="card"><h3>Inscritos por curso</h3><div id="p-cursos"></div></div>
+  <div class="card"><h3>Procedencia</h3><div id="p-dep"></div></div>
+  <div class="card"><h3>Profesores</h3><div id="p-prof"></div></div>
+  <div class="card"><h3>Estado de los pagos</h3><div id="p-pagos"></div>
+  </div>
+  <div class="card"><h3>Espacio de almacenamiento</h3>
+    <div class="grid">
+      <div><label for="s-n">Inscritos (estimación)</label><input id="s-n" type="range" min="0" max="1200" step="10"><small id="s-nv"></small></div>
+      <div><label for="s-mb">Peso por inscripción (MB)</label><input id="s-mb" type="number" min="0.2" max="8" step="0.1" value="1.2"></div>
+      <div><label for="s-q">Espacio total (GB)</label><input id="s-q" type="number" min="0.5" max="200" step="0.5" value="1"></div>
+      <div><label for="s-b">Ya ocupado por Nómada (GB)</label><input id="s-b" type="number" min="0" max="200" step="0.05" value="0.25"></div>
+    </div>
+    <div class="meter" aria-hidden="true"><i id="s-bar"></i><s style="left:70%"></s><s style="left:85%"></s><s style="left:95%"></s></div>
+    <div id="s-txt"></div><div id="s-alert"></div>
+    <p class="muted"><small>Estimación con los valores que indiques. Revisa el espacio real en el panel de Supabase. Avisos al 70 %, 85 % y 95 %.</small></p>
+  </div>
+  <div class="card"><h3>Exportar</h3><p class="muted">Copia la lista de inscritos en formato CSV para pegarla en Excel o Google Sheets.</p><button class="btn ghost sm" id="p-csv">Copiar lista CSV</button> <small id="p-csvm"></small></div>
+  </div>
+  <div id="pv-dep" hidden>
+    <div class="card"><h3>Inscritos por departamento</h3><div class="tw" id="d-tab"></div></div>
+    <div class="card"><h3>Detalle de un departamento</h3>
+      <div style="max-width:320px;margin-bottom:12px"><label for="d-sel">Departamento</label><select id="d-sel"></select></div>
+      <div id="d-det"></div>
+    </div>
+  </div>
+  <div id="pv-ges" hidden>
+    <div class="card"><h3>Plazo de inscripción</h3>
+      <div class="grid">
+        <div><label for="g-cierre">Cierre oficial (fecha y hora)</label><input id="g-cierre" type="datetime-local"></div>
+        <div><label for="g-gra">Tolerancia discreta (minutos)</label><input id="g-gra" type="number" min="0" max="30"><small>No se muestra al público: el sistema recibe inscripciones hasta esos minutos después de la hora oficial.</small></div>
+      </div>
+      <label class="check" style="margin-top:12px"><input type="checkbox" id="g-amp"> Ampliar el plazo</label>
+      <div id="g-nuevo-w" hidden style="max-width:320px"><label for="g-nuevo">Nuevo cierre (fecha y hora)</label><input id="g-nuevo" type="datetime-local"></div>
+      <div id="g-est"></div>
+    </div>
+    <div class="card"><h3>Revisión de pagos y documentos</h3>
+      <p class="muted">Verifica cada inscripción o recházala indicando el motivo. El estudiante verá el motivo al consultar con su carnet y podrá volver a subir el documento (imagen o PDF).</p>
+      <div id="g-rev"></div>
+    </div>
+    <div class="card"><h3>Consultas recibidas</h3><div id="g-con"></div></div>
+    <div class="card"><h3>Publicación de resultados</h3>
+      <label class="check"><input type="checkbox" id="g-pub"> Publicar los resultados a los estudiantes</label>
+      <div id="g-pub-n"></div>
+      <p class="muted"><small>Al activarlo, cada estudiante verá su nota y su posición al consultar con su carnet.</small></p>
+    </div>
+    <div class="card"><h3>Cargar notas del examen</h3>
+      <p class="muted">Pega una línea por estudiante: carnet, un espacio o punto y coma, y la nota (0 a 100).</p>
+      <textarea id="n-txt" placeholder="1234567;78&#10;7654321;64" style="min-height:120px"></textarea>
+      <p style="margin-top:10px"><button class="btn" id="n-go" type="button">Guardar notas</button></p>
+      <div id="n-out"></div>
+    </div>
+    <div class="card"><h3>Corregir datos de un inscrito</h3>
+      <div class="cons">
+        <div><label for="g-ci">Número de carnet</label><input id="g-ci" inputmode="numeric" placeholder="Solo números"></div>
+        <button class="btn" id="g-buscar" type="button">Buscar</button>
+      </div>
+      <div id="g-edit"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ASIGNACIÓN ===================== -->
+<section class="view" id="v-sim" hidden>
+  <h2>Asignación de plazas</h2>
+  <p class="muted">Cálculo con las notas del examen presencial cargadas. Solo sexto de secundaria entra a la admisión especial.</p>
+  <div class="card"><h3>Reglas aplicadas</h3>
+    <ul style="margin:0;padding-left:18px">
+      <li>Podio: los 3 mejores de cada área (de sexto) ingresan a su primera opción.</li>
+      <li>Desde el cuarto lugar: ranking mezclado de todas las áreas, cada uno a la primera carrera de su lista que tenga cupo.</li>
+      <li>Tope de 12 por área y de 10 por carrera (60 plazas).</li>
+      <li>Nota mínima: <input id="x-min" type="number" min="0" max="100" value="51" style="width:70px;min-height:32px;padding:4px 8px;display:inline-block"> puntos. Las plazas que un área no llena se pierden.</li>
+    </ul>
+  </div>
+  <div class="kpis" id="x-kpis"></div>
+  <div id="x-emp"></div>
+  <div class="grid">
+    <div class="card"><h3>Plazas por carrera</h3><div id="x-car"></div></div>
+    <div class="card"><h3>Plazas por área</h3><div id="x-are"></div></div>
+  </div>
+  <div class="card"><div style="max-width:320px"><label for="x-fa">Ver resultados de</label><select id="x-fa"><option value="">Todas las áreas</option></select></div></div>
+  <div class="card"><h3>Podios por área</h3>
+    <p class="muted"><small>Los tres mejores de cada área ingresan directo a la carrera que eligieron en primer lugar.</small></p>
+    <div id="x-podio"></div>
+  </div>
+  <div class="card"><h3>Ranking del cuarto al duodécimo lugar</h3>
+    <p class="muted" id="x-rk-info"></p>
+    <div class="tw"><table id="x-rank"></table></div>
+  </div>
+  <details class="card"><summary>Lista completa de sexto (incluye no admitidos)</summary>
+    <div style="max-width:320px;margin:10px 0"><label for="x-fe">Resultado</label><select id="x-fe"><option value="">Todos</option><option value="adm">Admitidos</option><option value="no">No admitidos</option></select></div>
+    <p class="muted" id="x-tab-n"></p>
+    <div class="tw"><table id="x-tab"></table></div>
+  </details>
+  <div class="card"><h3>Informes para imprimir y firmar</h3>
+    <p class="muted">Escribe los nombres de los encargados. Los que dejes vacíos quedan como línea en blanco para completar a mano.</p>
+    <div class="grid"><div><label for="inf-sel">Informe</label><select id="inf-sel"><option value="final">Informe final</option></select></div></div>
+    <div class="grid" id="inf-enc" style="margin-top:12px"></div>
+    <p style="margin-top:12px"><button class="btn" id="inf-print" type="button">Imprimir o guardar en PDF</button> <small id="inf-m"></small></p>
+    <div class="rep" id="inf-out"></div>
+  </div>
+  <details class="card"><summary>Podios por área y categoría (certificados)</summary><div id="x-pod" style="margin-top:10px"></div></details>
+</section>
+
+<div class="foot">Olimpiadas FICAM 2026 · Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas · Sucre, Bolivia</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/config.js"></script>
+<script src="js/common.js"></script>
+<script src="js/admin.js"></script>
+</body></html>

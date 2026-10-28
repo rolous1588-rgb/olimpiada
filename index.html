@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Olimpiadas FICAM 2026</title>
+<link rel="icon" href="assets/logo-ficam.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head><body>
+<header class="band"><div class="wrap">
+  <img class="logo-img" alt="Escudo de la Universidad Mayor, Real y Pontificia de San Francisco Xavier de Chuquisaca" src="assets/logo-uni.png">
+  <div class="t"><span class="u">Universidad Mayor, Real y Pontificia de San Francisco Xavier de Chuquisaca</span><span class="f">Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas</span><span class="o">Olimpiadas FICAM 2026</span></div>
+  <img class="logo-img" alt="Logo de la Facultad de Ingeniería FICAM" src="assets/logo-ficam.png">
+</div></header>
+<div class="wrap">
+<div id="net" hidden></div>
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-v="info">Información</button>
+  <button role="tab" aria-selected="false" data-v="insc">Inscripción</button>
+</nav>
+<section class="view" id="v-info">
+  <h2>Antes de inscribirte</h2>
+  <p class="muted">Lee los documentos, revisa los contenidos de tu área y haz tu pago. Después completa la inscripción con todos tus datos y documentos.</p>
+  <p id="i-pills"></p>
+  <p><button class="btn red" id="i-go" type="button">Ir a la inscripción</button></p>
+
+  <div class="card" style="margin-top:16px"><h3>Grupos de WhatsApp por carrera</h3>
+    <p class="muted"><small>Únete al grupo de la carrera que te interesa para recibir información de la Facultad y de la admisión especial.</small></p><div id="i-wa"></div></div>
+
+  <div class="card"><h3>Fechas importantes</h3><div class="acct" id="i-fechas" style="margin:0"></div></div>
+
+  <div class="grid2" style="margin-top:16px">
+    <div class="card"><h3>Documentos</h3><div id="i-docs"></div></div>
+    <div class="card"><h3>Contenidos por asignatura</h3><p class="muted"><small>Descarga el contenido del área en la que vas a competir.</small></p><div id="i-cont"></div></div>
+  </div>
+
+  <div class="card"><h3>Con el apoyo de Ruta Nómada</h3>
+    <p>Ruta Nómada es una plataforma de estudio que ofrece apoyo gratuito para que te prepares para esta olimpiada. Ahí puedes practicar, repasar y mejorar tus conocimientos antes del examen.</p>
+    <p style="margin:0 0 10px"><span class="pill ok">Sin ningún costo</span></p>
+    <div id="i-nomada"></div>
+  </div>
+
+  <div class="card"><h3>Cómo pagar la inscripción</h3><div id="i-pago"></div></div>
+
+  <div class="card"><h3>Consulta si ya estás inscrito</h3>
+    <p class="muted">Escribe tu número de carnet y verás el estado de tu inscripción.</p>
+    <div class="cons">
+      <div><label for="c-ci">Número de carnet</label><input id="c-ci" inputmode="numeric" autocomplete="off" placeholder="Solo números"></div>
+      <button class="btn" id="c-btn" type="button">Consultar</button>
+    </div>
+    <div id="c-out" aria-live="polite"></div>
+  </div>
+
+  <div class="card"><h3>¿Tienes una consulta?</h3>
+    <p class="muted">Escríbenos tu consulta aquí. Las consultas se revisan por las noches y se responden personalmente por esta misma plataforma.</p>
+    <div class="grid">
+      <div><label for="q-n">Tu nombre</label><input id="q-n" autocomplete="off"></div>
+      <div><label for="q-w">Tu WhatsApp</label><input id="q-w" inputmode="tel" autocomplete="off"></div>
+    </div>
+    <div style="margin-top:12px"><label for="q-m">Tu consulta</label><textarea id="q-m" maxlength="600"></textarea></div>
+    <div id="q-errs"></div>
+    <p style="margin-top:12px"><button class="btn" id="q-send" type="button">Enviar consulta</button></p>
+    <div id="q-ok"></div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+    <div class="cons">
+      <div><label for="q-cod">Ya enviaste una consulta: escribe tu código</label><input id="q-cod" autocomplete="off" placeholder="Ejemplo: C-AB12"></div>
+      <button class="btn ghost" id="q-ver" type="button">Ver respuesta</button>
+    </div>
+    <div id="q-resp" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="view" id="v-insc" hidden>
+  <h2>Inscripción</h2>
+  <p class="muted cierre-txt"></p>
+  <div class="alert crit" id="insc-cerrada" hidden><b>Las inscripciones están cerradas.</b> Si ya te inscribiste, consulta el estado de tu inscripción con tu carnet en la pestaña Información.</div>
+  <div id="insc-pick">
+    <h3 style="margin-bottom:10px">¿Quién se inscribe?</h3>
+    <div class="grid2">
+      <button class="pick" id="m-est" type="button"><b>Soy estudiante</b><span>Me inscribo yo mismo en el área en la que voy a competir.</span></button>
+      <button class="pick" id="m-tut" type="button"><b>Soy profesor</b><span>Inscribo a mis estudiantes, uno por uno, con sus documentos.</span></button>
+    </div>
+    <div class="card" style="margin-top:14px"><h3>Ten a la mano</h3>
+      <ul style="margin:0;padding-left:18px">
+        <li>La cédula de identidad del estudiante (foto o escaneo).</li>
+        <li>El formulario de autorización y consentimiento, firmado.</li>
+        <li>Un documento que certifique el curso del estudiante.</li>
+        <li>El comprobante del pago de Bs. 20 y su número de transacción.</li>
+      </ul>
+    </div>
+  </div>
+  <div id="insc-est" hidden>
+    <p><button class="btn ghost sm back" type="button">← Volver</button></p>
+
+  <form id="f-est" novalidate>
+    <p class="muted"><b>Todos los datos y documentos son obligatorios.</b> No podrás enviar tu inscripción hasta completar todo.</p>
+    <div class="card"><h3>Datos del estudiante</h3>
+      <div class="grid">
+        <div><label for="e-nombre">Nombre completo</label><input id="e-nombre" autocomplete="off"></div>
+        <div><label for="e-ci">Cédula de identidad</label><input id="e-ci" inputmode="numeric" autocomplete="off"></div>
+        <div><label for="e-nac">Fecha de nacimiento</label><input id="e-nac" type="date"></div>
+        <div><label for="e-wa">WhatsApp del estudiante</label><input id="e-wa" inputmode="tel"></div>
+        <div><label for="e-curso">Curso</label><select id="e-curso"><option value="">Elige…</option><option value="3">Tercero de secundaria</option><option value="4">Cuarto de secundaria</option><option value="5">Quinto de secundaria</option><option value="6">Sexto de secundaria</option></select></div>
+        <div><label for="e-area">Área de competencia (solo una)</label><select id="e-area"><option value="">Elige…</option></select></div>
+        <div><label for="e-col">Unidad educativa</label><input id="e-col"></div>
+        <div><label for="e-tipo">Tipo de unidad educativa</label><select id="e-tipo"><option value="fiscal">Fiscal</option><option value="convenio">De convenio</option><option value="particular">Particular</option></select></div>
+        <div><label for="e-mun">Municipio</label><input id="e-mun"></div>
+        <div><label for="e-dep">Departamento</label><select id="e-dep"><option>Beni</option><option selected>Chuquisaca</option><option>Cochabamba</option><option>La Paz</option><option>Oruro</option><option>Pando</option><option>Potosí</option><option>Santa Cruz</option><option>Tarija</option></select></div>
+      </div>
+    </div>
+    <div class="card"><h3>Padre, madre o tutor</h3>
+      <div class="grid">
+        <div><label for="e-tn">Nombre completo</label><input id="e-tn"></div>
+        <div><label for="e-tp">Parentesco</label><select id="e-tp"><option>Madre</option><option>Padre</option><option>Tutor legal</option></select></div>
+        <div><label for="e-tc">Celular</label><input id="e-tc" inputmode="tel"></div>
+      </div>
+      <div class="note">Solicitamos el número de WhatsApp del padre, madre o tutor para enviarle información sobre las Olimpiadas FICAM 2026: comunicados, resultados y novedades del proceso. También le haremos llegar información académica de la Facultad y actividades relacionadas con la formación de su hijo o hija.</div>
+    </div>
+    <div class="card"><h3>Tu profesor (opcional)</h3>
+      <label class="check"><input type="checkbox" id="e-pt">Quiero registrar a mi profesor</label>
+      <div id="e-pt-w" hidden>
+        <div class="grid" style="margin-top:6px">
+          <div><label for="e-pn">Nombre completo del profesor</label><input id="e-pn"></div>
+          <div><label for="e-pw">WhatsApp del profesor</label><input id="e-pw" inputmode="tel"></div>
+          <div><label for="e-pm">Asignatura que dicta</label><select id="e-pm"><option value="">Elige…</option><option>Matemáticas</option><option>Física</option><option>Química</option><option>Biología</option><option value="otra">Otra</option></select></div>
+          <div id="e-po-w" hidden><label for="e-po">¿Qué asignatura dicta?</label><input id="e-po"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="e-prefcard" hidden><h3>Orden de preferencia de carreras</h3>
+      <p class="muted">Solo para estudiantes de sexto de secundaria. Este es tu orden de elección para la admisión especial por mérito académico a la Universidad Mayor, Real y Pontificia de San Francisco Xavier de Chuquisaca, en la Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas. Ordena las carreras de la que más te interesa a la que menos.</p>
+      <p id="e-prefrule"><b></b></p>
+      <ol class="prefs" id="e-prefs"></ol>
+    </div>
+    <div class="card"><h3>Documentos</h3>
+      <div class="grid">
+        <div><label for="d1">Cédula de identidad (anverso y reverso)</label><input type="file" id="d1" accept="image/*,.pdf"></div>
+        <div><label for="d2">Formulario de autorización firmado</label><input type="file" id="d2" accept="image/*,.pdf"></div>
+        <div><label for="d3">Comprobante del pago de Bs. 20</label><input type="file" id="d3" accept="image/*,.pdf"></div>
+        <div><label for="d4">Documento que certifique el curso que estás cursando</label><input type="file" id="d4" accept="image/*,.pdf"><small>Libreta escolar, certificado de inscripción o carnet estudiantil.</small></div>
+        <div><label for="e-tx">N.º de transacción</label><input id="e-tx"></div>
+        <div><label for="e-fp">Fecha del pago</label><input id="e-fp" type="date"></div>
+      </div>
+      <p class="muted"><small>Las fotos se comprimen al subirlas. Cada archivo puede pesar hasta 5 MB (imagen o PDF). Solo la organización puede ver tus documentos.</small></p>
+    </div>
+    <div id="e-errs"></div>
+    <button type="submit" class="btn red">Enviar inscripción</button>
+  </form>
+  <div id="e-ok" hidden></div>
+  </div>
+
+  <div id="f-tut" hidden>
+    <p><button class="btn ghost sm back" type="button">← Volver</button></p>
+    <p class="muted"><b>Todos los datos y documentos son obligatorios.</b> Registras un estudiante a la vez: al enviarlo, el formulario queda en blanco para el siguiente.</p>
+    <div class="card"><h3>Datos del profesor</h3>
+      <div class="grid">
+        <div><label for="t-n">Nombre completo</label><input id="t-n"></div>
+        <div><label for="t-ci">Cédula de identidad</label><input id="t-ci" inputmode="numeric"></div>
+        <div><label for="t-wa">WhatsApp</label><input id="t-wa" inputmode="tel"></div>
+        <div><label for="t-mat">Materia que dicta</label><select id="t-mat"><option value="">Elige…</option><option>Matemáticas</option><option>Física</option><option>Química</option><option>Biología</option><option value="otra">Otra</option></select></div>
+        <div id="t-otra-w" hidden><label for="t-otra">¿Qué materia dicta?</label><input id="t-otra" placeholder="Escribe el nombre de la materia"></div>
+        <div><label for="t-col">Unidad educativa</label><input id="t-col"></div>
+        <div><label for="t-tipo">Tipo de unidad educativa</label><select id="t-tipo"><option value="fiscal">Fiscal</option><option value="convenio">De convenio</option><option value="particular">Particular</option></select></div>
+        <div><label for="t-mun">Municipio</label><input id="t-mun"></div>
+        <div><label for="t-dep">Departamento</label><select id="t-dep"><option>Beni</option><option selected>Chuquisaca</option><option>Cochabamba</option><option>La Paz</option><option>Oruro</option><option>Pando</option><option>Potosí</option><option>Santa Cruz</option><option>Tarija</option></select></div>
+      </div>
+      <p class="muted" style="margin:10px 0 0"><small>Tus datos se conservan mientras registras a tus estudiantes. Escribe tu cédula para ver la lista de tus estudiantes ya registrados.</small></p>
+    </div>
+    <div class="card"><h3>Registrar un estudiante</h3>
+      <div class="grid">
+        <div><label for="t-en">Nombre completo del estudiante</label><input id="t-en"></div>
+        <div><label for="t-eci">Cédula del estudiante</label><input id="t-eci" inputmode="numeric"></div>
+        <div><label for="t-ecu">Curso</label><select id="t-ecu"><option value="">Elige…</option><option value="3">Tercero de secundaria</option><option value="4">Cuarto de secundaria</option><option value="5">Quinto de secundaria</option><option value="6">Sexto de secundaria</option></select></div>
+        <div><label for="t-ear">Área de competencia</label><select id="t-ear"><option value="">Elige…</option><option value="FISICA">Física</option><option value="QUIMICA_APLICADA">Química Aplicada</option><option value="MATEMATICAS">Matemáticas</option><option value="ROBOTICA">Robótica</option><option value="BIOINGENIERIA">Bioingeniería</option></select></div>
+        <div><label for="t-etn">Nombre del padre o madre</label><input id="t-etn"></div>
+        <div><label for="t-etc">Celular del padre o madre</label><input id="t-etc" inputmode="tel"></div>
+      </div>
+      <div id="t-pw" hidden>
+        <p class="muted" style="margin:14px 0 0">Solo para sexto de secundaria. Este es el orden de elección del estudiante para la admisión especial por mérito académico a la Universidad Mayor, Real y Pontificia de San Francisco Xavier de Chuquisaca, en la Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas.</p>
+        <p id="t-prule"><b></b></p>
+        <ol class="prefs" id="t-pl"></ol>
+      </div>
+      <h3 class="ah">Documentos y pago</h3>
+      <div class="grid">
+        <div><label for="t-ef1">Cédula de identidad</label><input type="file" id="t-ef1" accept="image/*,.pdf"></div>
+        <div><label for="t-ef2">Autorización firmada</label><input type="file" id="t-ef2" accept="image/*,.pdf"></div>
+        <div><label for="t-ef3">Documento que certifique el curso</label><input type="file" id="t-ef3" accept="image/*,.pdf"><small>Libreta escolar, certificado de inscripción o carnet estudiantil.</small></div>
+        <div><label for="t-ecomp">Comprobante del pago de Bs. 20</label><input type="file" id="t-ecomp" accept="image/*,.pdf"></div>
+        <div><label for="t-etx">N.º de transacción</label><input id="t-etx"></div>
+        <div><label for="t-efp">Fecha del pago</label><input id="t-efp" type="date"></div>
+      </div>
+      <p class="muted" style="margin-top:8px"><small>Si depositaste un solo monto por varios estudiantes, sube el mismo comprobante y escribe el mismo número de transacción en cada uno.</small></p>
+      <div id="t-errs"></div>
+      <p style="margin-top:12px"><button class="btn red" id="t-send" type="button">Registrar estudiante</button></p>
+      <div id="t-ok" hidden></div>
+    </div>
+    <div class="card" id="t-mine" hidden><h3 id="t-mine-h">Mis estudiantes registrados</h3><div class="tw" id="t-mine-t"></div></div>
+  </div>
+</section>
+
+<div class="foot">Olimpiadas FICAM 2026 · Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas · Sucre, Bolivia</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/config.js"></script>
+<script src="js/common.js"></script>
+<script src="js/public.js"></script>
+</body></html>

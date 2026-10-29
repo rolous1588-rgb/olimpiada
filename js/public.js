@@ -15,11 +15,10 @@ const ENLACES = {
     BIOINGENIERIA: 'https://docs.google.com/document/d/1r254AOIxbVOyBBWv4ybByG7xZB0RmV6VsI0L7wd_5Ww/edit?usp=sharing',
     ROBOTICA: 'https://docs.google.com/document/d/1VJIM4kyDLbIulIe_J-HfiTdXiGwzqQQozZlzc-cHKHw/edit?usp=sharing' },
   nomada: 'https://rutanomada.org/',
-  /* Pega aquí el enlace de invitación del grupo de WhatsApp de cada carrera. */
-  grupos: { ING_ELECTROMECANICA: '', ING_MECATRONICA: '', ING_ELECTRONICA: '', ING_ELECTRICA: '', ING_BIOMEDICA: '', ING_MECANICA: '' }
+  whatsapp: 'https://chat.whatsapp.com/FcwqWz2fjyR2iOY5HW3s9A?s=cl&p=a&mlu=4&ilr=4&iam=2'
 };
-const PAGO = { banco: 'Banco Unión', titular: 'U.M.R.P.S.F.X.CH. - FICAM', cuenta: '', monto: 'Bs. 20',
-  lugarFacultad: 'Se paga en la Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas (FICAM), en la calle de la ex-Refisur. Pregunta por la Lic. Elena Cabezas. Se entrega recibo fiscalizado.' };
+const PAGO = { monto: 'Bs. 20',
+  lugar: 'El pago se realiza en persona en la Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas (FICAM), en las oficinas de administración (calle de la ex-Refisur).' };
 
 /* ---------- estado del servidor ---------- */
 async function cargarEstado() {
@@ -34,8 +33,8 @@ function renderFechas() {
   $('i-pills').innerHTML = (ab ? '<span class="pill warn">Cierre: ' + c + '</span>' : '<span class="pill crit">Inscripciones cerradas</span>') + ' <span class="pill info">Costo: Bs. 20 por estudiante</span>' + (state.ampliado && ab ? ' <span class="pill ok">Plazo ampliado</span>' : '');
   document.querySelectorAll('.cierre-txt').forEach(e => (e.textContent = ab ? 'Cierre de inscripciones: ' + c + '. Costo: Bs. 20 por estudiante.' : 'Las inscripciones están cerradas.'));
   const kv = (k, v) => '<div class="kv"><span>' + k + '</span><b>' + v + '</b></div>';
-  $('i-fechas').innerHTML = kv('Cierre de inscripciones', c || '—') + kv('Examen presencial', FECHAS.examen) + kv('Horarios y turnos', 'Se publican el ' + FECHAS.horarios) + kv('Lugar', 'Ciudad de Sucre') +
-    '<p class="muted" style="margin:8px 0"><small>' + FECHAS.lugar + ' El horario y el aula de cada área se indican en la publicación del ' + FECHAS.horarios + '.</small></p>';
+  $('i-fechas').innerHTML = kv('Cierre de inscripciones', c || '—') + kv('Examen presencial', FECHAS.examen) + kv('Aviso del horario del examen', 'Se publica el ' + FECHAS.horarios) + kv('Lugar', 'Ciudad de Sucre') +
+    '<p class="muted" style="margin:8px 0"><small>' + FECHAS.lugar + ' El horario y el aula de cada área se indican en el aviso del horario del examen, que se publica el ' + FECHAS.horarios + '.</small></p>';
 }
 
 /* ---------- pestañas ---------- */
@@ -55,16 +54,11 @@ function enlace(titulo, sub, url, verbo) {
 function renderInfo() {
   $('i-docs').innerHTML = ENLACES.docs.map(d => enlace(d[0], d[1], d[2])).join('');
   $('i-cont').innerHTML = ['MATEMATICAS', 'FISICA', 'QUIMICA_APLICADA', 'BIOINGENIERIA', 'ROBOTICA'].map(id => enlace(E.nombreArea(id), '', ENLACES.contenidos[id])).join('');
-  $('i-wa').innerHTML = E.CARRERAS.map(c => enlace(c.nombre, '', ENLACES.grupos[c.id], 'Unirme')).join('');
+  $('i-wa').innerHTML = enlace('Unirme al grupo de WhatsApp', 'Olimpiadas FICAM 2026, carreras e información académica', ENLACES.whatsapp, 'Unirme');
   $('i-nomada').innerHTML = enlace('Ir a Ruta Nómada', 'Plataforma de estudio gratuita', ENLACES.nomada, 'Abrir');
-  const kv = (k, v) => '<div class="kv"><span>' + k + '</span>' + (v ? '<b class="mono">' + esc(v) + '</b>' : '<span class="muted">Por definir</span>') + '</div>';
-  $('i-pago').innerHTML = '<div class="alert warn" style="margin-top:0"><b>Paga solo a la cuenta institucional.</b> Los pagos se hacen únicamente a cuentas de la Universidad. Nunca deposites ni transfieras a cuentas personales.</div>' +
-    '<div class="acct">' + kv('Banco', PAGO.banco) + kv('Titular de la cuenta', PAGO.titular) + kv('N.º de cuenta', PAGO.cuenta) + kv('Monto', PAGO.monto) + '</div>' +
-    '<p style="margin:0 0 4px"><b>Formas de pago</b></p><ol class="steps">' +
-    '<li><b>Transferencia electrónica</b> desde la banca por internet o la aplicación del banco.</li>' +
-    '<li><b>Depósito bancario</b> en una agencia del Banco Unión.</li>' +
-    '<li><b>Pago en persona en la Facultad</b>, si no puedes hacer una transferencia ni un depósito bancario. ' + (PAGO.lugarFacultad ? esc(PAGO.lugarFacultad) : '<span class="muted">Lugar y horario por definir.</span>') + '</li></ol>' +
-    '<p class="muted" style="margin:6px 0 0"><small>Conserva tu comprobante de pago: lo subes al momento de inscribirte.</small></p>';
+  $('i-pago').innerHTML = '<p style="margin:0 0 8px">' + esc(PAGO.lugar) + '</p>' +
+    '<div class="acct"><div class="kv"><span>Monto</span><b class="mono">' + esc(PAGO.monto) + ' por estudiante</b></div><div class="kv"><span>Comprobante</span><b>Recibo fiscalizado</b></div></div>' +
+    '<p class="muted" style="margin:6px 0 0"><small>Conserva tu recibo: lo subes al momento de inscribirte.</small></p>';
 }
 
 /* ---------- inscripción: pantallas ---------- */

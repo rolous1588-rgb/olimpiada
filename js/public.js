@@ -230,24 +230,4 @@ async function consultar(aviso) {
 $('c-btn').addEventListener('click', () => consultar());
 $('c-ci').addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); consultar(); } });
 
-/* ---------- consultas de los usuarios ---------- */
-$('q-send').addEventListener('click', async () => {
-  const n = $('q-n').value.trim(), w = $('q-w').value, m = $('q-m').value.trim(), errs = [];
-  if (n.length < 5) errs.push('Escribe tu nombre.');
-  if (!celularOk(w)) errs.push('Escribe tu WhatsApp' + MSG_CEL + '.');
-  if (m.length < 10) errs.push('Escribe tu consulta (al menos 10 letras).');
-  errsList($('q-errs'), errs); if (errs.length) return;
-  await conBoton($('q-send'), 'Enviando…', async () => {
-    const { data, error } = await sb.rpc('of_consulta_enviar', { p_nombre: n, p_wa: w, p_msg: m });
-    if (error) { errsList($('q-errs'), [msgErr(error)]); return; }
-    ['q-n', 'q-w', 'q-m'].forEach(id => ($(id).value = ''));
-    $('q-ok').innerHTML = '<div class="alert ok"><b>Recibimos tu consulta.</b> Tu código es <span class="mono">' + esc(data) + '</span>. Guárdalo: con él podrás ver la respuesta aquí mismo. Las consultas se revisan por las noches.</div>';
-  });
-});
-$('q-ver').addEventListener('click', async () => {
-  const { data, error } = await sb.rpc('of_consulta_ver', { p_cod: $('q-cod').value });
-  $('q-resp').innerHTML = error ? '<div class="alert crit">No pudimos consultar. Intenta de nuevo.</div>' : !data || !data.msg ? '<div class="alert crit">No encontramos una consulta con ese código.</div>'
-    : '<div class="card" style="margin:12px 0 0"><p class="muted" style="margin:0"><small>Tu consulta</small></p><p>' + esc(data.msg) + '</p>' + (data.resp ? '<div class="alert ok"><b>Respuesta de la organización</b><br>' + esc(data.resp) + '</div>' : '<div class="alert warn">Todavía no respondemos. Las consultas se revisan por las noches.</div>') + '</div>';
-});
-
 renderInfo(); cargarEstado();

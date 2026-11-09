@@ -19,7 +19,7 @@
 </nav>
 <section class="view" id="v-info">
   <h2>Antes de inscribirte</h2>
-  <p class="muted">Lee los documentos, revisa los contenidos de tu área y haz tu pago. Después completa la inscripción con todos tus datos y documentos.</p>
+  <p class="muted">Lee los documentos, revisa los contenidos de tu área y haz tu pago en la Facultad. Después completa la inscripción con tus datos y el número de tu recibo fiscalizado.</p>
   <p id="i-pills"></p>
   <p><button class="btn red" id="i-go" type="button">Ir a la inscripción</button></p>
 
@@ -31,12 +31,6 @@
   <div class="grid2" style="margin-top:16px">
     <div class="card"><h3>Documentos</h3><div id="i-docs"></div></div>
     <div class="card"><h3>Contenidos por asignatura</h3><p class="muted"><small>Descarga el contenido del área en la que vas a competir.</small></p><div id="i-cont"></div></div>
-  </div>
-
-  <div class="card"><h3>Con el apoyo de Ruta Nómada</h3>
-    <p>Ruta Nómada es una plataforma de estudio que ofrece apoyo gratuito para que te prepares para esta olimpiada. Ahí puedes practicar, repasar y mejorar tus conocimientos antes del examen.</p>
-    <p style="margin:0 0 10px"><span class="pill ok">Sin ningún costo</span></p>
-    <div id="i-nomada"></div>
   </div>
 
   <div class="card"><h3>Cómo pagar la inscripción</h3><div id="i-pago"></div></div>
@@ -77,22 +71,22 @@
     <h3 style="margin-bottom:10px">¿Quién se inscribe?</h3>
     <div class="grid2">
       <button class="pick" id="m-est" type="button"><b>Soy estudiante</b><span>Me inscribo yo mismo en el área en la que voy a competir.</span></button>
-      <button class="pick" id="m-tut" type="button"><b>Soy profesor</b><span>Inscribo a mis estudiantes, uno por uno, con sus documentos.</span></button>
+      <button class="pick" id="m-tut" type="button"><b>Soy profesor</b><span>Inscribo a mis estudiantes, uno por uno, con sus datos y el N.º de recibo.</span></button>
     </div>
     <div class="card" style="margin-top:14px"><h3>Ten a la mano</h3>
       <ul style="margin:0;padding-left:18px">
-        <li>La cédula de identidad del estudiante (foto o escaneo).</li>
-        <li>El formulario de autorización y consentimiento, firmado.</li>
-        <li>Un documento que certifique el curso del estudiante.</li>
-        <li>El comprobante del pago de Bs. 20 y su número de transacción.</li>
+        <li>La cédula de identidad del estudiante (solo necesitas sus datos).</li>
+        <li>El N.º del recibo fiscalizado del pago de Bs. 20.</li>
+        <li>Los datos del padre, madre o tutor.</li>
       </ul>
+      <div class="alert warn fisico" style="margin-top:12px"><b>El día del examen presenta en físico:</b><ul style="margin:6px 0 0;padding-left:18px"><li>Fotocopia de tu cédula de identidad.</li><li>Fotocopia del documento que certifica tu curso: puede ser la <b>fotocopia de la boleta de calificaciones de este año</b>.</li><li>Recibo fiscalizado: original y fotocopia.</li><li>Formulario de consentimiento firmado: original.</li></ul></div>
     </div>
   </div>
   <div id="insc-est" hidden>
     <p><button class="btn ghost sm back" type="button">← Volver</button></p>
 
   <form id="f-est" novalidate>
-    <p class="muted"><b>Todos los datos y documentos son obligatorios.</b> No podrás enviar tu inscripción hasta completar todo.</p>
+    <p class="muted"><b>Todos los datos son obligatorios.</b> No podrás enviar tu inscripción hasta completar todo.</p>
     <div class="card"><h3>Datos del estudiante</h3>
       <div class="grid">
         <div><label for="e-nombre">Nombre completo</label><input id="e-nombre" autocomplete="off"></div>
@@ -131,17 +125,10 @@
       <p id="e-prefrule"><b></b></p>
       <ol class="prefs" id="e-prefs"></ol>
     </div>
-    <div class="card"><h3>Documentos</h3>
-      <div class="grid">
-        <div><label for="d1">Cédula de identidad (anverso y reverso)</label><input type="file" id="d1" accept="image/*,.pdf"></div>
-        <div><label for="d2">Formulario de autorización firmado</label><input type="file" id="d2" accept="image/*,.pdf"></div>
-        <div><label for="d3">Comprobante del pago de Bs. 20</label><input type="file" id="d3" accept="image/*,.pdf"></div>
-        <div><label for="d4">Documento que certifique el curso que estás cursando</label><input type="file" id="d4" accept="image/*,.pdf"><small>Libreta escolar, certificado de inscripción o carnet estudiantil.</small></div>
-        <div><label for="e-tx">N.º de transacción</label><input id="e-tx"></div>
-        <div><label for="e-fp">Fecha del pago</label><input id="e-fp" type="date"></div>
-      </div>
-      <p class="muted"><small>Las fotos se comprimen al subirlas. Cada archivo puede pesar hasta 5 MB (imagen o PDF). Solo la organización puede ver tus documentos.</small></p>
+    <div class="card"><h3>Pago de la inscripción</h3>
+      <div class="grid"><div><label for="e-tx">N.º de recibo fiscalizado</label><input id="e-tx" autocomplete="off"><small>Es el recibo que te dieron al pagar Bs. 20 en la Facultad.</small></div></div>
     </div>
+    <div class="alert warn fisico"><b>El día del examen presenta en físico:</b><ul style="margin:6px 0 0;padding-left:18px"><li>Fotocopia de tu cédula de identidad.</li><li>Fotocopia del documento que certifica tu curso: puede ser la <b>fotocopia de la boleta de calificaciones de este año</b>.</li><li>Recibo fiscalizado: original y fotocopia.</li><li>Formulario de consentimiento firmado: original.</li></ul></div>
     <div id="e-errs"></div>
     <button type="submit" class="btn red">Enviar inscripción</button>
   </form>
@@ -150,7 +137,7 @@
 
   <div id="f-tut" hidden>
     <p><button class="btn ghost sm back" type="button">← Volver</button></p>
-    <p class="muted"><b>Todos los datos y documentos son obligatorios.</b> Registras un estudiante a la vez: al enviarlo, el formulario queda en blanco para el siguiente.</p>
+    <p class="muted"><b>Todos los datos son obligatorios.</b> Registras un estudiante a la vez: al enviarlo, el formulario queda en blanco para el siguiente.</p>
     <div class="card"><h3>Datos del profesor</h3>
       <div class="grid">
         <div><label for="t-n">Nombre completo</label><input id="t-n"></div>
@@ -179,16 +166,10 @@
         <p id="t-prule"><b></b></p>
         <ol class="prefs" id="t-pl"></ol>
       </div>
-      <h3 class="ah">Documentos y pago</h3>
-      <div class="grid">
-        <div><label for="t-ef1">Cédula de identidad</label><input type="file" id="t-ef1" accept="image/*,.pdf"></div>
-        <div><label for="t-ef2">Autorización firmada</label><input type="file" id="t-ef2" accept="image/*,.pdf"></div>
-        <div><label for="t-ef3">Documento que certifique el curso</label><input type="file" id="t-ef3" accept="image/*,.pdf"><small>Libreta escolar, certificado de inscripción o carnet estudiantil.</small></div>
-        <div><label for="t-ecomp">Comprobante del pago de Bs. 20</label><input type="file" id="t-ecomp" accept="image/*,.pdf"></div>
-        <div><label for="t-etx">N.º de transacción</label><input id="t-etx"></div>
-        <div><label for="t-efp">Fecha del pago</label><input id="t-efp" type="date"></div>
-      </div>
-      <p class="muted" style="margin-top:8px"><small>Si depositaste un solo monto por varios estudiantes, sube el mismo comprobante y escribe el mismo número de transacción en cada uno.</small></p>
+      <h3 class="ah">Pago de la inscripción</h3>
+      <div class="grid"><div><label for="t-etx">N.º de recibo fiscalizado</label><input id="t-etx" autocomplete="off"><small>Es el recibo que dieron en la Facultad al pagar Bs. 20.</small></div></div>
+      <p class="muted" style="margin-top:8px"><small>Si pagaste con un solo recibo por varios estudiantes, escribe el mismo número en cada uno.</small></p>
+      <div class="alert warn fisico"><b>El día del examen presenta en físico:</b><ul style="margin:6px 0 0;padding-left:18px"><li>Fotocopia de tu cédula de identidad.</li><li>Fotocopia del documento que certifica tu curso: puede ser la <b>fotocopia de la boleta de calificaciones de este año</b>.</li><li>Recibo fiscalizado: original y fotocopia.</li><li>Formulario de consentimiento firmado: original.</li></ul></div>
       <div id="t-errs"></div>
       <p style="margin-top:12px"><button class="btn red" id="t-send" type="button">Registrar estudiante</button></p>
       <div id="t-ok" hidden></div>

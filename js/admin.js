@@ -232,7 +232,7 @@ $('x-fa').addEventListener('change', renderSim); $('x-fe').addEventListener('cha
 
 
 /* ---------- gestión ---------- */
-const MOTIVOS = ['Comprobante ilegible o cortado', 'El monto no corresponde (son Bs. 20 por estudiante)', 'El número de transacción no coincide con el comprobante', 'El depósito no es a la cuenta de la Universidad', 'Cédula ilegible o incorrecta', 'Autorización sin firma o incompleta', 'Documento del curso ilegible o no válido'];
+const MOTIVOS = ['El N.º de recibo no coincide con el registro de la Facultad', 'El N.º de recibo está incompleto o mal escrito', 'El recibo no corresponde a Bs. 20 por estudiante'];
 async function guardarPlazo() {
   const P = state.plazo;
   const { error } = await sb.from('of_config').update({ cierre: aDate(P.cierre).toISOString(), gracia_min: +P.gracia, ampliado: P.ampliado, nuevo_cierre: P.nuevo ? aDate(P.nuevo).toISOString() : null }).eq('id', 1);
@@ -261,14 +261,12 @@ async function verDocs(s, el) {
 function renderRev() {
   const L = state.est, pend = L.filter(s => s.pago === 'pendiente').sort((a, b) => a.registro - b.registro), rech = L.filter(s => s.pago === 'rechazado');
   const cnt = {}; pend.forEach(s => s.tx && (cnt[s.tx] = (cnt[s.tx] || 0) + 1));
-  const rows = pend.slice(0, 12).map(s => '<div class="card" style="background:var(--bg);padding:12px"><p style="margin:0"><b>' + esc(s.nombre) + '</b></p><p class="muted" style="margin:0"><small><span class="mono">' + esc(s.ci) + '</span> · ' + E.nombreArea(s.area) + ' · ' + CURSO[s.curso] + (s.reenvios ? ' · corregido ' + s.reenvios + ' vez' : '') + '</small></p><p style="margin:4px 0 4px"><small>N.º de transacción: <span class="mono">' + esc(s.tx || '—') + '</span>' + (s.tx && cnt[s.tx] > 1 ? ' · ' + cnt[s.tx] + ' inscritos con este N.º' : '') + '</small></p>' +
-    '<p style="margin:0 0 8px"><button class="btn ghost sm" data-docs="' + s.id + '">Ver documentos</button> <span data-dl="' + s.id + '"></span></p>' +
+  const rows = pend.slice(0, 12).map(s => '<div class="card" style="background:var(--bg);padding:12px"><p style="margin:0"><b>' + esc(s.nombre) + '</b></p><p class="muted" style="margin:0"><small><span class="mono">' + esc(s.ci) + '</span> · ' + E.nombreArea(s.area) + ' · ' + CURSO[s.curso] + (s.reenvios ? ' · corregido ' + s.reenvios + ' vez' : '') + '</small></p><p style="margin:4px 0 4px"><small>N.º de recibo: <span class="mono">' + esc(s.tx || '—') + '</span>' + (s.tx && cnt[s.tx] > 1 ? ' · ' + cnt[s.tx] + ' inscritos con este recibo' : '') + '</small></p>' +
     '<select data-m="' + s.id + '"><option value="">Motivo si se rechaza…</option>' + MOTIVOS.map(m => '<option>' + esc(m) + '</option>').join('') + '</select><input data-d="' + s.id + '" placeholder="Detalle opcional" style="margin-top:6px">' +
     '<p style="margin:8px 0 0"><button class="btn sm" data-ok="' + s.id + '">Verificar</button> <button class="btn ghost sm" data-no="' + s.id + '">Rechazar</button>' + (s.tx && cnt[s.tx] > 1 ? ' <button class="btn ghost sm" data-grp="' + esc(s.tx) + '">Verificar los ' + cnt[s.tx] + '</button>' : '') + '</p><div class="err" data-e="' + s.id + '"></div></div>').join('');
   $('g-rev').innerHTML = '<p><span class="pill warn">' + pend.length + ' por revisar</span> <span class="pill crit">' + rech.length + ' esperando corrección</span></p>' +
     (pend.length ? rows + (pend.length > 12 ? '<p class="muted"><small>Se muestran 12 de ' + pend.length + '. Al resolver estas aparecen las siguientes.</small></p>' : '') : '<div class="alert ok">No hay inscripciones por revisar.</div>');
   const por = Object.fromEntries(L.map(s => [s.id, s])), g = $('g-rev');
-  g.querySelectorAll('[data-docs]').forEach(b => b.addEventListener('click', () => verDocs(por[b.dataset.docs], g.querySelector('[data-dl="' + b.dataset.docs + '"]'))));
   g.querySelectorAll('[data-ok]').forEach(b => b.addEventListener('click', async () => { const s = por[b.dataset.ok]; if (await guardar(s, { pago: 'verificado', motivo: null })) { s.pago = 'verificado'; s.motivo = null; refrescarRev(); } }));
   g.querySelectorAll('[data-grp]').forEach(b => b.addEventListener('click', async () => {
     const grupo = L.filter(s => s.pago === 'pendiente' && s.tx === b.dataset.grp), ids = grupo.map(s => s.id);

@@ -1,12 +1,12 @@
 /* Página pública: información, inscripción, consulta por carnet, consultas y resultados. */
 const state = { abierto: true, cierre: null, ampliado: false, resultados: false, cargado: false };
-const FECHAS = { examen: 'martes 17 de noviembre de 2026', horarios: 'lunes 9 de noviembre de 2026', lugar: 'Todos los exámenes se rinden en la ciudad de Sucre.' };
+const FECHAS = { examen: 'martes 17 de noviembre de 2026', horarios: 'lunes 9 de noviembre de 2026', lugar: 'El examen se rinde en las instalaciones de la FICAM, en la ex-Refisur, ciudad de Sucre.' };
 
 /* ---------- enlaces y pago (se cambian aquí) ---------- */
 const ENLACES = {
   docs: [
-    ['Convocatoria', 'Condiciones, fechas, áreas y admisión especial.', ''],
-    ['Formulario de autorización y consentimiento', 'Descárgalo, imprímelo, fírmalo y súbelo al inscribirte.', '']
+    ['Convocatoria', 'Condiciones, fechas, áreas y admisión especial.', 'https://drive.google.com/file/d/1Co2_3ZWjhNEL6tlZDSvYx14wHTduEpP6/view?usp=drivesdk'],
+    ['Formulario de autorización y consentimiento', 'Descárgalo, imprímelo y fírmalo. Lleva el original el día del examen.', 'https://drive.google.com/file/d/1W71iCQPR_MxkEKYxp5u-1Jdwk6H8DeKk/view?usp=drivesdk']
   ],
   contenidos: {
     MATEMATICAS: 'https://docs.google.com/document/d/1MbMsPU2Ds73SBHQHKNKIRgSyvsmyo6j0lOh9EyuVFz4/edit?usp=sharing',
@@ -14,7 +14,6 @@ const ENLACES = {
     QUIMICA_APLICADA: 'https://docs.google.com/document/d/1qjm3b7e4WNf84mvH9Sahhet2w_ekUacazS1dhgDmbzk/edit?usp=sharing',
     BIOINGENIERIA: 'https://docs.google.com/document/d/1r254AOIxbVOyBBWv4ybByG7xZB0RmV6VsI0L7wd_5Ww/edit?usp=sharing',
     ROBOTICA: 'https://docs.google.com/document/d/1VJIM4kyDLbIulIe_J-HfiTdXiGwzqQQozZlzc-cHKHw/edit?usp=sharing' },
-  nomada: 'https://rutanomada.org/',
   whatsapp: 'https://chat.whatsapp.com/FcwqWz2fjyR2iOY5HW3s9A?s=cl&p=a&mlu=4&ilr=4&iam=2'
 };
 const PAGO = { monto: 'Bs. 20',
@@ -33,8 +32,8 @@ function renderFechas() {
   $('i-pills').innerHTML = (ab ? '<span class="pill warn">Cierre: ' + c + '</span>' : '<span class="pill crit">Inscripciones cerradas</span>') + ' <span class="pill info">Costo: Bs. 20 por estudiante</span>' + (state.ampliado && ab ? ' <span class="pill ok">Plazo ampliado</span>' : '');
   document.querySelectorAll('.cierre-txt').forEach(e => (e.textContent = ab ? 'Cierre de inscripciones: ' + c + '. Costo: Bs. 20 por estudiante.' : 'Las inscripciones están cerradas.'));
   const kv = (k, v) => '<div class="kv"><span>' + k + '</span><b>' + v + '</b></div>';
-  $('i-fechas').innerHTML = kv('Cierre de inscripciones', c || '—') + kv('Examen presencial', FECHAS.examen) + kv('Aviso del horario del examen', 'Se publica el ' + FECHAS.horarios) + kv('Lugar', 'Ciudad de Sucre') +
-    '<p class="muted" style="margin:8px 0"><small>' + FECHAS.lugar + ' El horario y el aula de cada área se indican en el aviso del horario del examen, que se publica el ' + FECHAS.horarios + '.</small></p>';
+  $('i-fechas').innerHTML = kv('Cierre de inscripciones', c || '—') + kv('Examen presencial', FECHAS.examen) + kv('Aviso del horario del examen', 'Se publica el ' + FECHAS.horarios) + kv('Lugar', 'Instalaciones de la FICAM (ex-Refisur), Sucre') +
+    '<p class="muted" style="margin:8px 0"><small>' + FECHAS.lugar + ' El horario de cada área se indica en el aviso del horario del examen, que se publica el ' + FECHAS.horarios + '.</small></p>';
 }
 
 /* ---------- pestañas ---------- */
@@ -55,10 +54,9 @@ function renderInfo() {
   $('i-docs').innerHTML = ENLACES.docs.map(d => enlace(d[0], d[1], d[2])).join('');
   $('i-cont').innerHTML = ['MATEMATICAS', 'FISICA', 'QUIMICA_APLICADA', 'BIOINGENIERIA', 'ROBOTICA'].map(id => enlace(E.nombreArea(id), '', ENLACES.contenidos[id])).join('');
   $('i-wa').innerHTML = enlace('Unirme al grupo de WhatsApp', 'Olimpiadas FICAM 2026, carreras e información académica', ENLACES.whatsapp, 'Unirme');
-  $('i-nomada').innerHTML = enlace('Ir a Ruta Nómada', 'Plataforma de estudio gratuita', ENLACES.nomada, 'Abrir');
   $('i-pago').innerHTML = '<p style="margin:0 0 8px">' + esc(PAGO.lugar) + '</p>' +
     '<div class="acct"><div class="kv"><span>Monto</span><b class="mono">' + esc(PAGO.monto) + ' por estudiante</b></div><div class="kv"><span>Comprobante</span><b>Recibo fiscalizado</b></div></div>' +
-    '<p class="muted" style="margin:6px 0 0"><small>Conserva tu recibo: lo subes al momento de inscribirte.</small></p>';
+    '<p class="muted" style="margin:6px 0 0"><small>Conserva tu recibo fiscalizado: al inscribirte escribes su número y el día del examen lo presentas en físico.</small></p>';
 }
 
 /* ---------- inscripción: pantallas ---------- */
@@ -85,7 +83,8 @@ async function conBoton(btn, textoEnvio, fn) {
 }
 function constancia(el, cod, nombre, area, curso) {
   return '<div class="const"><p class="muted">Constancia de inscripción</p><div class="code">' + esc(cod) + '</div><p><b>' + esc(nombre) + '</b><br>' + esc(E.nombreArea(area)) + ' · ' + CURSO[curso] + ' de secundaria</p>' +
-    '<div class="alert ok">Recibimos tus datos y tus documentos. La organización verificará tu pago antes del examen.</div>' +
+    '<div class="alert ok">Recibimos tus datos. La organización verificará tu recibo antes del examen.</div>' +
+    '<div class="alert warn fisico"><b>El día del examen presenta en físico:</b><ul style="margin:6px 0 0;padding-left:18px"><li>Fotocopia de tu cédula de identidad.</li><li>Fotocopia del documento que certifica tu curso: puede ser la <b>fotocopia de la boleta de calificaciones de este año</b>.</li><li>Recibo fiscalizado: original y fotocopia.</li><li>Formulario de consentimiento firmado: original.</li></ul></div>' +
     '<p class="muted"><small>Guarda este código. Con tu número de carnet puedes consultar el estado de tu inscripción en la pestaña Información.</small></p></div>';
 }
 $('f-est').addEventListener('submit', async ev => {
@@ -111,18 +110,13 @@ $('f-est').addEventListener('submit', async ev => {
   }
   const prefs = $('e-curso').value === '6' ? edE.prefs.slice() : null;
   if (prefs) E.validarPrefs($('e-area').value, prefs).forEach(e => errs.push(e));
-  const DOC = [['d1', 'ci', 'Cédula de identidad'], ['d2', 'aut', 'Autorización firmada'], ['d3', 'comp', 'Comprobante de pago'], ['d4', 'curso', 'Documento del curso']];
-  DOC.forEach(([id, , nom]) => { const f = $(id).files[0]; if (!f) errs.push('Sube el documento: ' + nom + '.'); else if (!archivoOk(f)) errs.push(nom + ': sube una imagen o un PDF.'); });
-  if (v('e-tx').length < 3) errs.push('Escribe el número de transacción del pago.');
-  if (!fechaPasada($('e-fp').value)) errs.push('Indica la fecha del pago.');
+  if (v('e-tx').length < 3) errs.push('Escribe el número de tu recibo fiscalizado.');
   errsList($('e-errs'), errs);
   if (errs.length) { $('e-errs').scrollIntoView({ block: 'center' }); return; }
-  await conBoton(ev.submitter || $('f-est').querySelector('[type=submit]'), 'Subiendo documentos…', async () => {
+  await conBoton(ev.submitter || $('f-est').querySelector('[type=submit]'), 'Enviando…', async () => {
     try {
-      const carpeta = nuevaCarpeta('i'), docs = {};
-      for (const [id, k] of DOC) docs[k] = await subirDoc($(id).files[0], carpeta, k);
       const { data, error } = await sb.rpc('of_inscribir', { p: { nombre: v('e-nombre'), ci, fecha_nac: $('e-nac').value, wa: v('e-wa'), curso: +$('e-curso').value, area: $('e-area').value, colegio: v('e-col'), municipio: v('e-mun'), departamento: $('e-dep').value, tipo_colegio: $('e-tipo').value, prefs, tutor_nombre: v('e-tn'), tutor_parentesco: $('e-tp').value, tutor_celular: v('e-tc'), via: 'individual',
-        profesor_nombre: conProf ? v('e-pn') : null, profesor_wa: conProf ? v('e-pw') : null, profesor_materia: conProf ? ($('e-pm').value === 'otra' ? v('e-po') : $('e-pm').value) : null, tx: v('e-tx'), fecha_pago: $('e-fp').value, docs } });
+        profesor_nombre: conProf ? v('e-pn') : null, profesor_wa: conProf ? v('e-pw') : null, profesor_materia: conProf ? ($('e-pm').value === 'otra' ? v('e-po') : $('e-pm').value) : null, tx: v('e-tx') } });
       if (error) throw error;
       $('f-est').hidden = true; $('e-ok').hidden = false;
       $('e-ok').innerHTML = constancia($('e-ok'), data.codigo, v('e-nombre'), $('e-area').value, $('e-curso').value) + '<p style="margin-top:12px"><button class="btn ghost" id="e-again">Inscribir a otro estudiante</button></p>';
@@ -166,20 +160,15 @@ $('t-send').addEventListener('click', async () => {
   if (tn.length < 5) errs.push('Escribe el nombre del padre o madre.');
   if (!celularOk(tc)) errs.push('Escribe un celular válido del padre o madre' + MSG_CEL + '.');
   if (cu === '6' && ar) E.validarPrefs(ar, edT.prefs).forEach(e => errs.push(e));
-  const DOC = [['t-ef1', 'ci', 'Cédula de identidad'], ['t-ef2', 'aut', 'Autorización firmada'], ['t-ef3', 'curso', 'Documento del curso'], ['t-ecomp', 'comp', 'Comprobante de pago']];
-  DOC.forEach(([id, , nom]) => { const f = $(id).files[0]; if (!f) errs.push('Sube el documento: ' + nom + '.'); else if (!archivoOk(f)) errs.push(nom + ': sube una imagen o un PDF.'); });
-  if (tv('t-etx').length < 3) errs.push('Escribe el número de transacción del pago.');
-  if (!fechaPasada($('t-efp').value)) errs.push('Indica la fecha del pago.');
+  if (tv('t-etx').length < 3) errs.push('Escribe el número del recibo fiscalizado.');
   errsList($('t-errs'), errs);
   if (errs.length) { $('t-errs').scrollIntoView({ block: 'center' }); return; }
-  await conBoton($('t-send'), 'Subiendo documentos…', async () => {
+  await conBoton($('t-send'), 'Enviando…', async () => {
     try {
-      const carpeta = nuevaCarpeta('i'), docs = {};
-      for (const [id, k] of DOC) docs[k] = await subirDoc($(id).files[0], carpeta, k);
       const { data, error } = await sb.rpc('of_inscribir', { p: { nombre: n, ci, curso: +cu, area: ar, colegio: tv('t-col'), municipio: tv('t-mun'), departamento: $('t-dep').value, tipo_colegio: $('t-tipo').value, prefs: cu === '6' ? edT.prefs.slice() : null, tutor_nombre: tn, tutor_celular: tc, via: 'tutor',
-        profesor_ci: soloDigitos(tv('t-ci')), profesor_nombre: tv('t-n'), profesor_wa: tv('t-wa'), profesor_materia: $('t-mat').value === 'otra' ? tv('t-otra') : $('t-mat').value, tx: tv('t-etx'), fecha_pago: $('t-efp').value, docs } });
+        profesor_ci: soloDigitos(tv('t-ci')), profesor_nombre: tv('t-n'), profesor_wa: tv('t-wa'), profesor_materia: $('t-mat').value === 'otra' ? tv('t-otra') : $('t-mat').value, tx: tv('t-etx') } });
       if (error) throw error;
-      ['t-en', 't-eci', 't-etn', 't-etc', 't-etx', 't-efp', 't-ef1', 't-ef2', 't-ef3', 't-ecomp', 't-ecu', 't-ear'].forEach(id => ($(id).value = ''));
+      ['t-en', 't-eci', 't-etn', 't-etc', 't-etx', 't-ecu', 't-ear'].forEach(id => ($(id).value = ''));
       togglePrefT(); $('t-errs').innerHTML = '';
       $('t-ok').hidden = false;
       $('t-ok').innerHTML = '<div class="alert ok"><b>' + esc(n) + ' quedó inscrito.</b> Código: <span class="mono">' + esc(data.codigo) + '</span>. El formulario está en blanco para registrar al siguiente estudiante.</div>';
@@ -211,30 +200,22 @@ async function consultar(aviso) {
   if (error) { out.innerHTML = '<div class="alert crit">No pudimos consultar. Revisa tu conexión e intenta de nuevo.</div>'; return; }
   if (!s.encontrado) { out.innerHTML = '<div class="alert crit"><b>No encontramos una inscripción con ese carnet.</b> Revisa el número. ' + (state.abierto && state.cierre ? 'Si aún no te inscribiste, puedes hacerlo hasta el ' + fmtF(state.cierre) + '.' : 'Las inscripciones ya cerraron.') + '</div>'; return; }
   let est;
-  if (s.pago === 'verificado') est = '<div class="alert ok"><b>Estás inscrito.</b> Tus documentos y tu pago fueron verificados.</div>';
-  else if (s.pago === 'rechazado') est = '<div class="alert crit"><b>Tu inscripción necesita una corrección.</b><br>Motivo: ' + esc(s.motivo || 'revisa tus documentos') + '</div>' +
-    '<div style="margin-top:12px"><p style="margin:0 0 8px"><b>Vuelve a subir el documento</b> (imagen o PDF)</p><div class="grid">' +
-    '<div><label for="rc-doc">¿Qué documento subes?</label><select id="rc-doc"><option value="comp">Comprobante de pago</option><option value="ci">Cédula de identidad</option><option value="aut">Autorización firmada</option><option value="curso">Documento del curso</option></select></div>' +
-    '<div><label for="rc-file">Archivo</label><input type="file" id="rc-file" accept="image/*,.pdf"></div>' +
-    '<div class="rc-p"><label for="rc-tx">N.º de transacción</label><input id="rc-tx" value="' + esc(s.tx || '') + '"></div>' +
-    '<div class="rc-p"><label for="rc-fp">Fecha del pago</label><input id="rc-fp" type="date"></div></div>' +
+  if (s.pago === 'verificado') est = '<div class="alert ok"><b>Estás inscrito.</b> Tu recibo fue verificado.</div>';
+  else if (s.pago === 'rechazado') est = '<div class="alert crit"><b>Tu inscripción necesita una corrección.</b><br>Motivo: ' + esc(s.motivo || 'revisa el número de tu recibo') + '</div>' +
+    '<div style="margin-top:12px"><p style="margin:0 0 8px"><b>Corrige el número de tu recibo fiscalizado</b></p><div class="grid">' +
+    '<div><label for="rc-tx">N.º de recibo fiscalizado</label><input id="rc-tx" value="' + esc(s.tx || '') + '"></div></div>' +
     '<div id="rc-err"></div><p style="margin-top:10px"><button class="btn red" id="rc-send" type="button">Enviar corrección</button></p></div>';
-  else est = '<div class="alert ok"><b>Estás inscrito.</b> Tus documentos están completos. Tu pago está pendiente de verificación.</div>';
+  else est = '<div class="alert ok"><b>Estás inscrito.</b> Tu recibo está pendiente de verificación. Recuerda presentar tus documentos en físico el día del examen.</div>';
   out.innerHTML = (aviso || '') + '<div class="card" style="margin:12px 0 0"><p style="margin:0"><b>' + esc(s.nombre) + '</b></p><p class="muted" style="margin:0">' + E.nombreArea(s.area) + ' · ' + CURSO[s.curso] + ' de secundaria</p>' + est +
     (state.resultados ? '<p style="margin:12px 0 0"><button class="btn" id="c-res-b" type="button">Ver mi resultado</button></p><div id="c-res"></div>' : '') + '</div>';
   if (s.pago === 'rechazado') {
-    const sync = () => document.querySelectorAll('.rc-p').forEach(e => (e.hidden = $('rc-doc').value !== 'comp'));
-    $('rc-doc').addEventListener('change', sync); sync();
     $('rc-send').addEventListener('click', async () => {
-      const errs = [], f = $('rc-file').files[0], esPago = $('rc-doc').value === 'comp';
-      if (!f) errs.push('Sube el archivo.'); else if (!archivoOk(f)) errs.push('Sube una imagen o un PDF.');
-      if (esPago && $('rc-tx').value.trim().length < 3) errs.push('Escribe el número de transacción.');
-      if (esPago && !fechaPasada($('rc-fp').value)) errs.push('Indica la fecha del pago.');
+      const errs = [];
+      if ($('rc-tx').value.trim().length < 3) errs.push('Escribe el número del recibo fiscalizado.');
       errsList($('rc-err'), errs); if (errs.length) return;
       await conBoton($('rc-send'), 'Enviando…', async () => {
         try {
-          const path = await subirDoc(f, nuevaCarpeta('r'), $('rc-doc').value);
-          const { error: er } = await sb.rpc('of_reenviar', { p_ci: q, p_doc: $('rc-doc').value, p_path: path, p_tx: esPago ? $('rc-tx').value.trim() : null, p_fecha: esPago ? $('rc-fp').value : null });
+          const { error: er } = await sb.rpc('of_reenviar', { p_ci: q, p_doc: 'comp', p_path: null, p_tx: $('rc-tx').value.trim(), p_fecha: null });
           if (er) throw er;
           consultar('<div class="alert ok"><b>Recibimos tu corrección.</b> La organización la revisará nuevamente.</div>');
         } catch (e) { errsList($('rc-err'), [msgErr(e)]); }

@@ -42,7 +42,7 @@
   <div class="card"><h3>Profesores</h3><div id="p-prof"></div></div>
   <div class="card"><h3>Estado de los pagos</h3><div id="p-pagos"></div>
   </div>
-  <div class="card"><h3>Espacio de almacenamiento</h3>
+  <div class="card" hidden><h3>Espacio de almacenamiento</h3>
     <div class="grid">
       <div><label for="s-n">Inscritos (estimación)</label><input id="s-n" type="range" min="0" max="1200" step="10"><small id="s-nv"></small></div>
       <div><label for="s-mb">Peso por inscripción (MB)</label><input id="s-mb" type="number" min="0.2" max="8" step="0.1" value="1.2"></div>
@@ -72,8 +72,8 @@
       <div id="g-nuevo-w" hidden style="max-width:320px"><label for="g-nuevo">Nuevo cierre (fecha y hora)</label><input id="g-nuevo" type="datetime-local"></div>
       <div id="g-est"></div>
     </div>
-    <div class="card"><h3>Revisión de pagos y documentos</h3>
-      <p class="muted">Verifica cada inscripción o recházala indicando el motivo. El estudiante verá el motivo al consultar con su carnet y podrá volver a subir el documento (imagen o PDF).</p>
+    <div class="card"><h3>Revisión de recibos</h3>
+      <p class="muted">Compara el N.º de recibo con el registro de la Facultad y verifica la inscripción, o recházala indicando el motivo. El estudiante verá el motivo al consultar con su carnet y podrá corregir el número.</p>
       <div id="g-rev"></div>
     </div>
     <div class="card"><h3>Consultas recibidas</h3><div id="g-con"></div></div>

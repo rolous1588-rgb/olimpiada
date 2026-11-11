@@ -16,16 +16,27 @@
 <nav class="tabs" role="tablist" id="a-tabs" hidden>
   <button role="tab" aria-selected="true" data-v="panel">Panel de control</button>
   <button role="tab" aria-selected="false" data-v="sim">Asignación de plazas</button>
-  <button role="tab" aria-selected="false" id="a-salir" style="margin-left:auto">Salir</button>
+  <button role="tab" aria-selected="false" id="a-pin" style="margin-left:auto">Mi PIN</button>
+  <button role="tab" aria-selected="false" id="a-salir">Salir</button>
 </nav>
 <section class="view" id="v-login">
   <h2>Administración</h2>
-  <div class="card" style="max-width:460px"><p class="muted">Acceso solo para la organización. Escribe tu correo y te enviaremos un enlace para entrar, sin contraseña.</p>
-    <label for="l-mail">Correo</label><input id="l-mail" type="email" autocomplete="email" inputmode="email">
-    <p style="margin-top:12px"><button class="btn red" id="l-send" type="button">Enviarme el enlace</button></p>
+  <div class="card" style="max-width:460px"><p class="muted">Acceso solo para la organización. Escribe tu correo y tu PIN.</p>
+    <label for="l-mail">Correo</label><input id="l-mail" type="email" autocomplete="username" inputmode="email">
+    <label for="l-pin" style="margin-top:10px;display:block">PIN</label><input id="l-pin" type="password" autocomplete="current-password">
+    <p style="margin-top:12px"><button class="btn red" id="l-go" type="button">Entrar</button></p>
+    <p class="muted" style="font-size:.9em">¿Aún no tienes PIN o lo olvidaste? <button class="btn ghost sm" id="l-send" type="button">Enviarme un enlace al correo</button></p>
     <div id="l-msg" aria-live="polite"></div></div>
 </section>
-<!-- ===================== PANEL ===================== -->
+<div id="pin-box" class="card" style="max-width:460px;margin:12px auto" hidden>
+  <h3>Crear o cambiar mi PIN</h3>
+  <p class="muted">Mínimo 8 caracteres (se recomiendan 8 o más dígitos). Solo tú lo conoces.</p>
+  <label for="p-1">Nuevo PIN</label><input id="p-1" type="password" autocomplete="new-password">
+  <label for="p-2" style="margin-top:10px;display:block">Repetir PIN</label><input id="p-2" type="password" autocomplete="new-password">
+  <p style="margin-top:12px"><button class="btn red" id="p-ok" type="button">Guardar PIN</button> <button class="btn ghost" id="p-x" type="button">Cerrar</button></p>
+  <div id="p-msg" aria-live="polite"></div>
+</div>
+<!-- ===================== PANEL =====================
 <section class="view" id="v-panel" hidden>
   <h2>Panel de control</h2>
   

@@ -55,6 +55,28 @@ async function iniciar() {
 }
 async function salir() { await sb.auth.signOut(); entrado = false; state.est = []; location.reload(); }
 $('a-salir').addEventListener('click', salir);
+$('l-go').addEventListener('click', async () => {
+  const m = $('l-mail').value.trim(), pw = $('l-pin').value;
+  if (!/^\S+@\S+\.\S+$/.test(m) || !pw) { $('l-msg').innerHTML = '<div class="alert warn">Escribe tu correo y tu PIN.</div>'; return; }
+  $('l-go').disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email: m, password: pw });
+  $('l-go').disabled = false;
+  if (error) $('l-msg').innerHTML = '<div class="alert crit">Correo o PIN incorrectos.</div>';
+});
+$('l-pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('l-go').click(); });
+$('a-pin').addEventListener('click', () => { $('pin-box').hidden = false; $('pin-box').scrollIntoView(); });
+$('p-x').addEventListener('click', () => { $('pin-box').hidden = true; $('p-msg').innerHTML = ''; });
+$('p-ok').addEventListener('click', async () => {
+  const a = $('p-1').value, b = $('p-2').value;
+  if (a.length < 8) { $('p-msg').innerHTML = '<div class="alert warn">El PIN debe tener al menos 8 caracteres.</div>'; return; }
+  if (a !== b) { $('p-msg').innerHTML = '<div class="alert warn">Los dos PIN no coinciden.</div>'; return; }
+  $('p-ok').disabled = true;
+  const { error } = await sb.auth.updateUser({ password: a });
+  $('p-ok').disabled = false;
+  if (error) { $('p-msg').innerHTML = '<div class="alert crit">No se pudo guardar: ' + esc(error.message) + '</div>'; return; }
+  $('p-1').value = $('p-2').value = '';
+  $('p-msg').innerHTML = '<div class="alert ok"><b>PIN guardado.</b> Desde ahora entras con tu correo y ese PIN.</div>';
+});
 $('l-send').addEventListener('click', async () => {
   const m = $('l-mail').value.trim();
   if (!/^\S+@\S+\.\S+$/.test(m)) { $('l-msg').innerHTML = '<div class="alert warn">Escribe un correo válido.</div>'; return; }

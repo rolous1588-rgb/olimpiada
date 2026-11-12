@@ -192,6 +192,51 @@ function resultadoHTML(r) {
   }
   return h;
 }
+function formModificar(q, c4, r) {
+  const d = r.datos, out = $('c-out'), opt = (arr, v) => arr.map(([k, t]) => '<option value="' + esc(k) + '"' + (String(k) === String(v) ? ' selected' : '') + '>' + esc(t) + '</option>').join('');
+  out.innerHTML = '<div class="card" style="margin:12px 0 0"><h3>Modificar mi inscripción</h3><p class="muted">Corrige lo que necesites y guarda. Tienes hasta el ' + fmtF(new Date(r.hasta)) + ' para hacerlo, y solo puedes guardar una vez. Tu número de carnet no se puede cambiar.</p>' +
+    '<div class="grid"><div><label for="m-nombre">Nombre completo</label><input id="m-nombre" value="' + esc(d.nombre) + '"></div>' +
+    '<div><label for="m-curso">Curso</label><select id="m-curso">' + opt([[3, 'Tercero'], [4, 'Cuarto'], [5, 'Quinto'], [6, 'Sexto']], d.curso) + '</select></div>' +
+    '<div><label for="m-area">Área de competencia</label><select id="m-area">' + opt(E.AREAS.map(a => [a.id, a.nombre]), d.area) + '</select></div>' +
+    (d.via === 'individual' ? '<div><label for="m-wa">Tu WhatsApp</label><input id="m-wa" inputmode="tel" value="' + esc(d.wa) + '"></div>' : '') +
+    '<div><label for="m-col">Unidad educativa</label><input id="m-col" value="' + esc(d.colegio) + '"></div>' +
+    '<div><label for="m-tipo">Tipo de unidad educativa</label><select id="m-tipo">' + opt([['fiscal', 'Fiscal'], ['convenio', 'De convenio'], ['particular', 'Particular']], d.tipo_colegio) + '</select></div>' +
+    '<div><label for="m-mun">Municipio</label><input id="m-mun" value="' + esc(d.municipio) + '"></div>' +
+    '<div><label for="m-dep">Departamento</label><select id="m-dep">' + opt(DEPTOS.map(x => [x, x]), d.departamento) + '</select></div>' +
+    '<div><label for="m-tn">Padre, madre o tutor</label><input id="m-tn" value="' + esc(d.tutor_nombre) + '"></div>' +
+    '<div><label for="m-tp">Parentesco</label><select id="m-tp">' + opt([['Madre', 'Madre'], ['Padre', 'Padre'], ['Tutor legal', 'Tutor legal']], d.tutor_parentesco || 'Madre') + '</select></div>' +
+    '<div><label for="m-tc">Celular del padre, madre o tutor</label><input id="m-tc" inputmode="tel" value="' + esc(d.tutor_celular) + '"></div>' +
+    '<div><label for="m-tx">N.º de recibo fiscalizado</label><input id="m-tx" value="' + esc(d.tx) + '"><small>Si cambias el número, tu recibo volverá a revisión.</small></div></div>' +
+    '<div id="m-prefcard" hidden style="margin-top:12px"><h3>Orden de preferencia de carreras</h3><p id="m-prefrule"><b></b></p><ol class="prefs" id="m-prefs"></ol></div>' +
+    '<div id="m-errs"></div><p style="margin-top:12px"><button class="btn red" id="m-ok" type="button">Guardar cambios</button> <button class="btn ghost" id="m-x" type="button">Cancelar</button></p></div>';
+  const ed = prefsEditor($('m-prefs'), $('m-prefrule'), () => $('m-area').value);
+  if (Array.isArray(d.prefs) && d.prefs.length === 6) { ed.prefs = d.prefs.slice(); ed.sync(); }
+  const tog = () => { $('m-prefcard').hidden = $('m-curso').value !== '6'; ed.sync(); };
+  $('m-curso').addEventListener('change', tog); $('m-area').addEventListener('change', tog); tog();
+  $('m-x').addEventListener('click', () => consultar());
+  $('m-ok').addEventListener('click', async () => {
+    const v = id => $(id).value.trim(), errs = [], indiv = !!$('m-wa');
+    if (v('m-nombre').length < 5) errs.push('Escribe tu nombre completo.');
+    if (indiv && !celularOk(v('m-wa'))) errs.push('Escribe tu número de WhatsApp' + MSG_CEL + '.');
+    if (!v('m-col')) errs.push('Escribe tu unidad educativa.');
+    if (!v('m-mun')) errs.push('Escribe tu municipio.');
+    if (v('m-tn').length < 5) errs.push('Escribe el nombre completo del padre, madre o tutor.');
+    if (!celularOk(v('m-tc'))) errs.push('Escribe el celular del padre, madre o tutor' + MSG_CEL + '.');
+    if (v('m-tx').length < 3) errs.push('Escribe el número de tu recibo fiscalizado.');
+    const prefs = $('m-curso').value === '6' ? ed.prefs.slice() : null;
+    if (prefs) E.validarPrefs($('m-area').value, prefs).forEach(e => errs.push(e));
+    errsList($('m-errs'), errs); if (errs.length) { $('m-errs').scrollIntoView({ block: 'center' }); return; }
+    await conBoton($('m-ok'), 'Guardando…', async () => {
+      try {
+        const { data, error: er } = await sb.rpc('of_modificar', { p_ci: q, p_cel4: c4, p: { nombre: v('m-nombre'), curso: +$('m-curso').value, area: $('m-area').value, wa: indiv ? v('m-wa') : null, colegio: v('m-col'), tipo_colegio: $('m-tipo').value, municipio: v('m-mun'), departamento: $('m-dep').value, tutor_nombre: v('m-tn'), tutor_parentesco: $('m-tp').value, tutor_celular: v('m-tc'), tx: v('m-tx'), prefs } });
+        if (er) throw er;
+        if (!data || !data.ok) throw new Error('El permiso de modificación venció. Pide que lo habiliten de nuevo.');
+        window.scrollTo({ top: 0 });
+        consultar('<div class="alert ok"><b>Guardamos los cambios de tu inscripción.</b></div>');
+      } catch (e) { errsList($('m-errs'), [msgErr(e)]); $('m-errs').scrollIntoView({ block: 'center' }); }
+    });
+  });
+}
 async function consultar(aviso) {
   const q = soloDigitos($('c-ci').value), out = $('c-out');
   if (q.length < 5) { out.innerHTML = '<div class="alert warn">Escribe tu número de carnet (solo números).</div>'; return; }
@@ -206,8 +251,20 @@ async function consultar(aviso) {
     '<div><label for="rc-tx">N.º de recibo fiscalizado</label><input id="rc-tx" value="' + esc(s.tx || '') + '"></div></div>' +
     '<div id="rc-err"></div><p style="margin-top:10px"><button class="btn red" id="rc-send" type="button">Enviar corrección</button></p></div>';
   else est = '<div class="alert ok"><b>Estás inscrito.</b> Tu recibo está pendiente de verificación. Recuerda presentar tus documentos en físico el día del examen.</div>';
+  if (s.mod) est += '<div class="alert warn" style="margin-top:12px"><b>La organización habilitó la modificación de tu inscripción.</b> Para continuar, escribe los últimos 4 dígitos del celular del padre, madre o tutor que registraste.</div>' +
+    '<div class="grid"><div><label for="mo-c4">Últimos 4 dígitos del celular</label><input id="mo-c4" inputmode="numeric" maxlength="4" autocomplete="off"></div></div><div id="mo-err"></div><p style="margin-top:10px"><button class="btn" id="mo-go" type="button">Modificar mi inscripción</button></p>';
   out.innerHTML = (aviso || '') + '<div class="card" style="margin:12px 0 0"><p style="margin:0"><b>' + esc(s.nombre) + '</b></p><p class="muted" style="margin:0">' + E.nombreArea(s.area) + ' · ' + CURSO[s.curso] + ' de secundaria</p>' + est +
     (state.resultados ? '<p style="margin:12px 0 0"><button class="btn" id="c-res-b" type="button">Ver mi resultado</button></p><div id="c-res"></div>' : '') + '</div>';
+  if (s.mod) $('mo-go').addEventListener('click', async () => {
+    const c4 = soloDigitos($('mo-c4').value);
+    if (c4.length !== 4) { errsList($('mo-err'), ['Escribe los 4 últimos dígitos del celular.']); return; }
+    await conBoton($('mo-go'), 'Verificando…', async () => {
+      const { data, error: er } = await sb.rpc('of_mod_obtener', { p_ci: q, p_cel4: c4 });
+      if (er) { errsList($('mo-err'), [msgErr(er)]); return; }
+      if (!data || !data.ok) { errsList($('mo-err'), ['No coinciden los datos o la modificación ya no está habilitada. Si te equivocas 5 veces, el permiso se cierra y debes pedir que lo habiliten de nuevo.']); return; }
+      formModificar(q, c4, data);
+    });
+  });
   if (s.pago === 'rechazado') {
     $('rc-send').addEventListener('click', async () => {
       const errs = [];

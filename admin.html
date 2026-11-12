@@ -99,6 +99,15 @@
       <p style="margin-top:10px"><button class="btn" id="n-go" type="button">Guardar notas</button></p>
       <div id="n-out"></div>
     </div>
+    <div class="card"><h3>Permitir que un estudiante modifique su inscripción</h3>
+      <p class="muted">Habilitas la modificación para un estudiante. Él entra a "Consultar" con su carnet, confirma con los últimos 4 dígitos del celular de su padre, madre o tutor y corrige sus datos una sola vez. El permiso dura 24 horas y se cierra al guardar.</p>
+      <div class="cons">
+        <div><label for="g-mci">Número de carnet</label><input id="g-mci" inputmode="numeric" placeholder="Solo números"></div>
+        <button class="btn" id="g-mbuscar" type="button">Buscar</button>
+      </div>
+      <div id="g-mod"></div>
+      <div id="g-modlist"></div>
+    </div>
     <div class="card"><h3>Corregir datos de un inscrito</h3>
       <div class="cons">
         <div><label for="g-ci">Número de carnet</label><input id="g-ci" inputmode="numeric" placeholder="Solo números"></div>
@@ -157,5 +166,5 @@
 <script src="js/engine.js?v=20261109b"></script>
 <script src="js/config.js?v=20261109b"></script>
 <script src="js/common.js?v=20261109b"></script>
-<script src="js/admin.js?v=20261110b"></script>
+<script src="js/admin.js?v=20261112a"></script>
 </body></html>

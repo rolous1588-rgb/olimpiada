@@ -11,7 +11,8 @@ function mapRow(r) {
   return { id: r.id, codigo: r.codigo, nombre: r.nombre, ci: r.ci, area: r.area, curso: r.curso, colegio: r.colegio, municipio: r.municipio, departamento: r.departamento, tipoColegio: r.tipo_colegio,
     nota: r.nota == null ? null : +r.nota, registro: Date.parse(r.creado), prefs: r.prefs, comision: r.comision, tutorNombre: r.tutor_nombre, tutorParentesco: r.tutor_parentesco, tutorCelular: r.tutor_celular,
     via: r.via, profesorCi: r.profesor_ci, profesorNombre: r.profesor_nombre, profesorWa: r.profesor_wa, profesorMateria: r.profesor_materia, wa: r.wa,
-    pago: r.pago, motivo: r.motivo, tx: r.tx, reenvios: r.reenvios, docs: r.docs || {}, resultado: r.resultado };
+    pago: r.pago, motivo: r.motivo, tx: r.tx, reenvios: r.reenvios, docs: r.docs || {}, resultado: r.resultado,
+    modHasta: r.mod_hasta ? Date.parse(r.mod_hasta) : null, modN: r.mod_n || 0, modUltima: r.mod_ultima ? Date.parse(r.mod_ultima) : null };
 }
 async function cargarInscritos() {
   let all = [], from = 0;
@@ -261,6 +262,7 @@ async function guardarPlazo() {
   if (error) avisoRed('No se pudo guardar el plazo: ' + error.message); else avisoRed('');
 }
 function renderGestion() {
+  renderModLista();
   const P = state.plazo, ab = inscAbierta();
   if (document.activeElement !== $('g-cierre')) $('g-cierre').value = P.cierre;
   $('g-gra').value = P.gracia; $('g-amp').checked = P.ampliado; $('g-nuevo-w').hidden = !P.ampliado; $('g-nuevo').value = P.nuevo;
@@ -367,6 +369,35 @@ $('g-buscar').addEventListener('click', () => {
     $('ge-e').innerHTML = '<div class="alert ok"><b>Cambios guardados.</b>' + (cambia && cu === 6 ? ' Como cambió el área o el curso, el orden de carreras volvió al orden por defecto de esa área.' : '') + '</div>';
   });
 });
+
+/* ---------- modificación habilitada por estudiante ---------- */
+const modActivo = s => s.modHasta && s.modHasta > Date.now();
+function renderModLista() {
+  const act = state.est.filter(modActivo), hechas = state.est.filter(x => x.modN > 0);
+  $('g-modlist').innerHTML = (act.length ? '<h4 style="margin:16px 0 6px">Modificaciones habilitadas ahora (' + act.length + ')</h4>' + act.map(x => '<div class="kv"><span>' + esc(x.nombre) + ' · ' + esc(x.ci) + '<br><small class="muted">vence ' + fmtC(new Date(x.modHasta)) + '</small></span><button class="btn ghost sm" data-q="' + esc(x.id) + '" type="button">Quitar permiso</button></div>').join('') : '') +
+    (hechas.length ? '<h4 style="margin:16px 0 6px">Ya modificaron su inscripción (' + hechas.length + ')</h4>' + hechas.map(x => '<div class="kv"><span>' + esc(x.nombre) + ' · ' + esc(x.ci) + '</span><b>' + (x.modUltima ? fmtC(new Date(x.modUltima)) : '') + '</b></div>').join('') : '');
+  $('g-modlist').querySelectorAll('button[data-q]').forEach(b => b.addEventListener('click', () => cambiarMod(state.est.find(x => x.id === b.dataset.q), true)));
+}
+async function cambiarMod(s, quitar) {
+  if (!s) return;
+  const { data, error } = await sb.rpc('of_mod_habilitar', { p_id: s.id, p_horas: 24, p_quitar: !!quitar });
+  if (error) { avisoRed('No se pudo cambiar el permiso: ' + error.message); return; }
+  avisoRed(''); s.modHasta = quitar || !data ? null : Date.parse(data);
+  mostrarMod(s); renderModLista();
+}
+function mostrarMod(s) {
+  const out = $('g-mod'), on = modActivo(s);
+  out.innerHTML = '<div class="card" style="margin-top:12px"><p style="margin:0"><b>' + esc(s.nombre) + '</b></p><p class="muted" style="margin:0">' + esc(E.nombreArea(s.area)) + ' · ' + CURSO[s.curso] + ' · carnet ' + esc(s.ci) + '</p>' +
+    (on ? '<div class="alert ok" style="margin-top:8px"><b>Modificación habilitada</b> hasta ' + fmtC(new Date(s.modHasta)) + '. Avísale al estudiante que entre a "Consultar" con su carnet.</div><p style="margin-top:10px"><button class="btn ghost" id="gm-q" type="button">Quitar permiso</button></p>'
+      : '<p style="margin:8px 0 0">' + (s.modN ? 'Ya modificó su inscripción ' + s.modN + ' vez/veces.' : 'No tiene modificación habilitada.') + '</p><p style="margin-top:10px"><button class="btn red" id="gm-h" type="button">Habilitar modificación (24 h)</button></p>') + '</div>';
+  if (on) $('gm-q').addEventListener('click', () => cambiarMod(s, true)); else $('gm-h').addEventListener('click', () => cambiarMod(s, false));
+}
+$('g-mbuscar').addEventListener('click', () => {
+  const q = soloDigitos($('g-mci').value), s = state.est.find(x => soloDigitos(x.ci) === q);
+  if (q.length < 5 || !s) { $('g-mod').innerHTML = '<div class="alert crit">No se encontró ese carnet.</div>'; return; }
+  mostrarMod(s);
+});
+$('g-mci').addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); $('g-mbuscar').click(); } });
 
 /* ---------- informes para imprimir ---------- */
 const ROLES = { final: ['Decano(a) de la Facultad', 'Coordinador(a) general de las Olimpiadas', 'Responsable del sistema de inscripciones'], area: ['Presidente(a) de la comisión del área', 'Miembro de la comisión', 'Miembro de la comisión'] };

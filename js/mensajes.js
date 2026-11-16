@@ -6,7 +6,7 @@ const celWa = v => { let d = soloDigitos(v); if (d.length === 11 && d.startsWith
 const lineaEst = e => '• ' + titulo(e.nombre) + ': ' + E.nombreArea(e.area) + ', ' + CURSO[e.curso] + ' de secundaria';
 const bloqueExamen = () => '📅 *Mañana martes 17 de noviembre se realiza el examen.* El examen inicia a las *9:00 de la mañana* y termina a las *12:00 del mediodía*.\n📍 Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas (*FICAM*), ex-Refisur, Sucre.';
 const bloqueDocs = () => 'Deben llevar *en físico*:\n' + DOCS_MSG.map(x => '• ' + x).join('\n');
-const bloqueUtiles = ests => 'Útiles: lápiz, borrador, tajador y bolígrafo.' + (ests.some(e => e.area === 'FISICA') ? '\n*Solo en Física:* calculadora científica sencilla.' : '');
+const bloqueUtiles = ests => { const f = ests.filter(e => e.area === 'FISICA'), q = ests.filter(e => e.area === 'QUIMICA_APLICADA'), n = l => ests.length > 1 ? ' (' + l.map(e => titulo(e.nombre).split(' ')[0]).join(', ') + ')' : ''; return 'Útiles: lápiz, borrador, tajador y bolígrafo.' + (f.length ? '\n*Solo en Física:* calculadora científica sencilla' + n(f) + '.' : '') + (q.length ? '\n*Solo en Química:* pueden llevar calculadora, especialmente en cuarto, quinto y sexto' + n(q) + '.' : ''); };
 
 function msgPadres(ests, tutorNombre) {
   const uno = ests.length === 1, e0 = ests[0];
@@ -16,7 +16,7 @@ function msgPadres(ests, tutorNombre) {
   const gs = ests.map(x => x.generoEst), todasF = gs.every(x => x === 'F'), hayNull = gs.some(x => !x), hijos = hayNull ? 'hijos(as)' : todasF ? 'hijas' : 'hijos', inscs = hayNull ? 'inscritos(as)' : todasF ? 'inscritas' : 'inscritos';
   const intro = uno ? '¡Felicitaciones! Su ' + hijo + ' *' + titulo(e0.nombre) + '* está ' + insc + ' en las *Olimpiadas FICAM 2026*, área de *' + E.nombreArea(e0.area) + '* (' + CURSO[e0.curso] + ' de secundaria). Es un logro que refleja su esfuerzo y el de su familia.'
     : '¡Felicitaciones! Sus ' + hijos + ' están ' + inscs + ' en las *Olimpiadas FICAM 2026*:\n' + ests.map(lineaEst).join('\n') + '\nEs un logro que refleja su esfuerzo y el de su familia.';
-  return saludo + ':\n\n' + intro + '\n\n' + bloqueExamen() + '\n\n' + bloqueDocs().replace('Deben llevar', uno ? 'Debe llevar' : 'Cada estudiante debe llevar') + '\n\n' + bloqueUtiles(ests).replace('Solo en Física', uno ? 'Solo en Física' : 'Solo en Física (' + ests.filter(e => e.area === 'FISICA').map(e => titulo(e.nombre).split(' ')[0]).join(', ') + ')') + '\n\nGracias por su apoyo. Cualquier consulta, escríbame a este número.\n' + FIRMA;
+  return saludo + ':\n\n' + intro + '\n\n' + bloqueExamen() + '\n\n' + bloqueDocs().replace('Deben llevar', uno ? 'Debe llevar' : 'Cada estudiante debe llevar') + '\n\n' + bloqueUtiles(ests) + '\n\nGracias por su apoyo. Cualquier consulta, escríbame a este número.\n' + FIRMA;
 }
 function msgProfesor(ests, nombre) {
   const uno = ests.length === 1, multi = new Set(ests.map(e => e.colegio)).size > 1;
@@ -57,6 +57,9 @@ function gruposMsg() {
   const { res: asig, sin } = asignarProfes();
   const prof = [...asig.values()].map(p => ({ id: 'f' + p.wa, wa: p.wa, titulo: titulo(p.nombre) || 'Profesor', sub: 'Celular ' + p.wa.slice(3) + ' · ' + [...new Set(p.ests.map(e => e.colegio))].join(', ') + ' · ' + p.ests.length + ' estudiante(s)', texto: msgProfesor(ord(p.ests.slice()), p.nombre), buscar: [p.nombre, ...p.ests.map(e => e.colegio + ' ' + e.nombre), p.wa].join(' ') }));
   const est = state.est.filter(e => celWa(e.wa)).map(e => ({ id: 'e' + e.id, wa: celWa(e.wa), titulo: titulo(e.nombre), sub: 'Celular ' + celWa(e.wa).slice(3) + ' · ' + E.nombreArea(e.area) + ' · ' + CURSO[e.curso], texto: msgEstudiante(e), buscar: [e.nombre, e.wa].join(' ') }));
+  const idP = new Map(padres.map(p => [p.wa, p])), idF = new Map(prof.map(p => [p.wa, p]));
+  padres.forEach(p => { if (idF.has(p.wa)) { p.cruce = idF.get(p.wa).id; p.cruceDe = 'profesor'; } });
+  prof.forEach(p => { if (idP.has(p.wa)) { p.cruce = idP.get(p.wa).id; p.cruceDe = 'padre de familia'; } });
   const por = (a, b) => a.titulo.localeCompare(b.titulo);
   return { padres: padres.sort(por), profes: prof.sort(por), ests: est.sort(por), sinProf: sin };
 }
@@ -76,7 +79,7 @@ function renderMsg() {
   const env = lista.filter(x => enviadosMsg[x.id]).length;
   $('msg-res').innerHTML = '<div class="alert ' + (env === lista.length && lista.length ? 'ok' : 'warn') + '"><b>' + TITULOS_MSG[vistaMsg] + ': ' + env + ' enviados de ' + lista.length + '.</b>' + (vistaMsg === 'padres' ? ' Un mensaje por familia: si hay hermanos, el mensaje los nombra a todos.' : '') + '</div>' + (vistaMsg === 'profes' && g.sinProf.length ? '<div class="alert warn"><b>' + g.sinProf.length + ' estudiantes no tienen profesor asignado</b> (no hay profesor de su área en su colegio). Ellos reciben el aviso solo por sus padres: ' + Object.entries(g.sinProf.reduce((m, e) => { const c = claveCol(e.colegio); m[c] = (m[c] || 0) + 1; return m; }, {})).map(([c, n]) => esc(c) + ' (' + n + ')').join(', ') + '.</div>' : '');
   const vis = lista.filter(x => (!ocultarEnv || !enviadosMsg[x.id]) && (!q || x.buscar.toLowerCase().includes(q)));
-  $('msg-lista').innerHTML = vis.length ? vis.map(x => '<div class="card" style="margin:8px 0;' + (enviadosMsg[x.id] ? 'opacity:.6' : '') + '"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><b>' + (enviadosMsg[x.id] ? '✔ ' : '') + esc(x.titulo) + '</b><br><small class="muted">' + esc(x.sub) + '</small></div></div>' +
+  $('msg-lista').innerHTML = vis.length ? vis.map(x => '<div class="card" style="margin:8px 0;' + (enviadosMsg[x.id] ? 'opacity:.6' : '') + '"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><b>' + (enviadosMsg[x.id] ? '✔ ' : '') + esc(x.titulo) + '</b><br><small class="muted">' + esc(x.sub) + (x.cruce ? (enviadosMsg[x.cruce] ? ' <b style="color:#15803d">· ✔ Ya se le envió el mensaje como ' + x.cruceDe + '</b>' : ' <b style="color:#b45309">· ⚠ También está registrado como ' + x.cruceDe + ': con un solo mensaje basta</b>') : '') + '</small></div></div>' +
     '<details style="margin-top:6px"><summary class="muted"><small>Ver mensaje</small></summary><pre style="white-space:pre-wrap;font:inherit;margin:6px 0 0">' + esc(x.texto) + '</pre></details>' +
     '<p style="margin:10px 0 0"><a class="btn red sm" style="display:inline-block;text-decoration:none" data-id="' + esc(x.id) + '" data-w="1" target="_blank" rel="noopener" href="https://wa.me/' + x.wa + '?text=' + encodeURIComponent(x.texto) + '">Enviar por WhatsApp</a> <button class="btn ghost sm" data-id="' + esc(x.id) + '" data-c="1" type="button">Copiar mensaje</button> <button class="btn ghost sm" data-id="' + esc(x.id) + '" data-m="1" type="button">' + (enviadosMsg[x.id] ? 'Desmarcar' : 'Marcar enviado') + '</button></p></div>').join('') : '<p class="muted">No hay nada que mostrar con ese filtro.</p>';
   $('msg-lista').querySelectorAll('[data-w]').forEach(a => a.addEventListener('click', () => { enviadosMsg[a.dataset.id] = Date.now(); guardarEnv(); setTimeout(renderMsg, 400); }));

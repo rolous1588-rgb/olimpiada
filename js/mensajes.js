@@ -4,24 +4,47 @@ const DOCS_MSG = ['Fotocopia de la cédula de identidad', 'Recibo fiscalizado: o
 const titulo = t => String(t || '').trim().toLowerCase().replace(/(^|[\s'-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
 const celWa = v => { let d = soloDigitos(v); if (d.length === 11 && d.startsWith('591')) d = d.slice(3); return /^[67]\d{7}$/.test(d) ? '591' + d : ''; };
 const lineaEst = e => '• ' + titulo(e.nombre) + ': ' + E.nombreArea(e.area) + ', ' + CURSO[e.curso] + ' de secundaria';
-const bloqueExamen = () => '📅 *Mañana martes 17 de noviembre se realiza el examen.* Los esperamos de *9:00 a 12:00* de la mañana.\n📍 Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas (*FICAM*), ex-Refisur, Sucre.';
+const bloqueExamen = () => '📅 *Mañana martes 17 de noviembre se realiza el examen.* El examen inicia a las *9:00 de la mañana* y termina a las *12:00 del mediodía*.\n📍 Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas (*FICAM*), ex-Refisur, Sucre.';
 const bloqueDocs = () => 'Deben llevar *en físico*:\n' + DOCS_MSG.map(x => '• ' + x).join('\n');
 const bloqueUtiles = ests => 'Útiles: lápiz, borrador, tajador y bolígrafo.' + (ests.some(e => e.area === 'FISICA') ? '\n*Solo en Física:* calculadora científica sencilla.' : '');
 
 function msgPadres(ests, tutorNombre) {
   const uno = ests.length === 1, e0 = ests[0];
   const par = [...new Set(ests.map(x => x.tutorParentesco))];
-  const saludo = par.length === 1 && par[0] === 'Madre' ? 'Estimada madre de familia' : par.length === 1 && par[0] === 'Padre' ? 'Estimado padre de familia' : 'Estimado(a) padre, madre o tutor';
+  const nom = titulo(tutorNombre), saludo = par.length === 1 && par[0] === 'Madre' ? 'Estimada señora ' + nom : par.length === 1 && par[0] === 'Padre' ? 'Estimado señor ' + nom : 'Estimado(a) señor(a) ' + nom;
   const intro = uno ? '¡Felicitaciones! Su hijo(a) *' + titulo(e0.nombre) + '* está inscrito(a) en las *Olimpiadas FICAM 2026*, área de *' + E.nombreArea(e0.area) + '* (' + CURSO[e0.curso] + ' de secundaria). Es un logro que refleja su esfuerzo y el de su familia.'
     : '¡Felicitaciones! Sus hijos(as) están inscritos(as) en las *Olimpiadas FICAM 2026*:\n' + ests.map(lineaEst).join('\n') + '\nEs un logro que refleja su esfuerzo y el de su familia.';
   return saludo + ':\n\n' + intro + '\n\n' + bloqueExamen() + '\n\n' + bloqueDocs().replace('Deben llevar', uno ? 'Debe llevar' : 'Cada estudiante debe llevar') + '\n\n' + bloqueUtiles(ests).replace('Solo en Física', uno ? 'Solo en Física' : 'Solo en Física (' + ests.filter(e => e.area === 'FISICA').map(e => titulo(e.nombre).split(' ')[0]).join(', ') + ')') + '\n\nGracias por su apoyo. Cualquier consulta, escríbame a este número.\n' + FIRMA;
 }
 function msgProfesor(ests, nombre) {
-  const uno = ests.length === 1;
-  return 'Estimado(a) profesor(a) ' + titulo(nombre) + ':\n\nLe saludo de la Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas (FICAM). Le informo sobre ' + (uno ? 'su estudiante inscrito(a)' : 'sus estudiantes inscritos') + ' en las *Olimpiadas FICAM 2026*:\n' + ests.map(lineaEst).join('\n') + '\n\n' + bloqueExamen() + '\n\n' + bloqueDocs().replace('Deben llevar', 'Deben llevar los estudiantes') + '\n\n' + bloqueUtiles(ests) + '\n\nLe agradecemos recordárselo a ' + (uno ? 'su estudiante' : 'sus estudiantes') + '. Gracias por su apoyo.\n' + FIRMA;
+  const uno = ests.length === 1, multi = new Set(ests.map(e => e.colegio)).size > 1;
+  return 'Estimado(a) profesor(a) ' + titulo(nombre) + ':\n\nLe saludo de la Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas (FICAM). Le informo sobre ' + (uno ? 'su estudiante inscrito(a)' : 'sus estudiantes inscritos') + ' en las *Olimpiadas FICAM 2026*:\n' + ests.map(e => lineaEst(e) + (multi ? ' (' + e.colegio + ')' : '')).join('\n') + '\n\n' + bloqueExamen() + '\n\n' + bloqueDocs().replace('Deben llevar', 'Deben llevar los estudiantes') + '\n\n' + bloqueUtiles(ests) + '\n\nLe agradecemos recordárselo a ' + (uno ? 'su estudiante' : 'sus estudiantes') + '. Gracias por su apoyo.\n' + FIRMA;
 }
 function msgEstudiante(e) {
-  return '¡Hola, ' + titulo(e.nombre).split(' ')[0] + '! Estás inscrito(a) en las *Olimpiadas FICAM 2026*, área de *' + E.nombreArea(e.area) + '*. ¡Felicitaciones!\n\n' + bloqueExamen().replace('Los esperamos', 'Te esperamos') + '\n\nDebes llevar *en físico*:\n' + DOCS_MSG.map(x => '• ' + x).join('\n') + '\n\n' + bloqueUtiles([e]) + '\n\n¡Mucho éxito!\n' + FIRMA;
+  return '¡Hola, ' + titulo(e.nombre).split(' ')[0] + '! Estás inscrito(a) en las *Olimpiadas FICAM 2026*, área de *' + E.nombreArea(e.area) + '*. ¡Felicitaciones!\n\n' + bloqueExamen() + '\n\nDebes llevar *en físico*:\n' + DOCS_MSG.map(x => '• ' + x).join('\n') + '\n\n' + bloqueUtiles([e]) + '\n\n¡Mucho éxito!\n' + FIRMA;
+}
+
+/* ---------- asignación de estudiantes a profesores: por colegio y área ---------- */
+const AREA_MAT = m => { m = String(m || '').toLowerCase(); return /f[ií]sic/.test(m) ? 'FISICA' : /matem/.test(m) ? 'MATEMATICAS' : /qu[ií]m/.test(m) ? 'QUIMICA_APLICADA' : /biolog|bioing/.test(m) ? 'BIOINGENIERIA' : /rob[oó]t/.test(m) ? 'ROBOTICA' : null; };
+const claveCol = c => String(c || '').replace(/\s*"[AB]"\s*$/, '').trim();
+/* Colegios donde todos los estudiantes se agrupan con una sola profesora, que luego difunde el aviso. */
+const OVERRIDE_PROF = { 'U.E. Nazareno': /mirna\s+fern[aá]ndez/i };
+function asignarProfes() {
+  const profs = new Map(), porCA = new Map(), res = new Map(), sin = [];
+  state.est.forEach(e => { const w = celWa(e.profesorWa); if (w && !profs.has(w)) profs.set(w, { wa: w, nombre: e.profesorNombre, area: AREA_MAT(e.profesorMateria) }); });
+  state.est.forEach(e => {
+    const w = celWa(e.profesorWa), pa = w && profs.get(w).area; if (!w || !pa) return;
+    const k = claveCol(e.colegio) + '|' + pa; if (!porCA.has(k)) porCA.set(k, new Map()); porCA.get(k).set(w, (porCA.get(k).get(w) || 0) + 1);
+  });
+  state.est.forEach(e => {
+    const cc = claveCol(e.colegio); let w = '';
+    const ov = OVERRIDE_PROF[cc]; if (ov) { const hit = [...profs.values()].find(p => ov.test(p.nombre || '')); if (hit) w = hit.wa; }
+    if (!w) w = celWa(e.profesorWa);
+    if (!w) { const m = porCA.get(cc + '|' + e.area); if (m) w = [...m.entries()].sort((a, b) => b[1] - a[1])[0][0]; }
+    if (!w) { sin.push(e); return; }
+    if (!res.has(w)) res.set(w, { wa: w, nombre: profs.get(w).nombre, ests: [] }); res.get(w).ests.push(e);
+  });
+  return { res, sin };
 }
 
 /* ---------- datos agrupados ---------- */
@@ -29,10 +52,11 @@ function gruposMsg() {
   const mapa = (arr, clave) => { const m = new Map(); arr.forEach(e => { const k = clave(e); if (!k) return; if (!m.has(k)) m.set(k, []); m.get(k).push(e); }); return m; };
   const ord = a => a.sort((x, y) => x.nombre.localeCompare(y.nombre));
   const padres = [...mapa(state.est, e => celWa(e.tutorCelular)).entries()].map(([wa, ests]) => ({ id: 'p' + wa, wa, titulo: titulo(ests[0].tutorNombre), sub: 'Celular ' + wa.slice(3) + ' · ' + ests.map(e => titulo(e.nombre) + ' (' + E.nombreArea(e.area) + ')').join(', '), texto: msgPadres(ests, ests[0].tutorNombre), buscar: [ests[0].tutorNombre, ...ests.map(e => e.nombre), wa].join(' ') }));
-  const prof = [...mapa(state.est, e => celWa(e.profesorWa)).entries()].map(([wa, ests]) => ({ id: 'f' + wa, wa, titulo: titulo(ests[0].profesorNombre) || 'Profesor', sub: 'Celular ' + wa.slice(3) + ' · ' + [...new Set(ests.map(e => e.colegio))].join(', ') + ' · ' + ests.length + ' estudiante(s)', texto: msgProfesor(ord(ests.slice()), ests[0].profesorNombre), buscar: [ests[0].profesorNombre, ests[0].colegio, wa].join(' ') }));
+  const { res: asig, sin } = asignarProfes();
+  const prof = [...asig.values()].map(p => ({ id: 'f' + p.wa, wa: p.wa, titulo: titulo(p.nombre) || 'Profesor', sub: 'Celular ' + p.wa.slice(3) + ' · ' + [...new Set(p.ests.map(e => e.colegio))].join(', ') + ' · ' + p.ests.length + ' estudiante(s)', texto: msgProfesor(ord(p.ests.slice()), p.nombre), buscar: [p.nombre, ...p.ests.map(e => e.colegio + ' ' + e.nombre), p.wa].join(' ') }));
   const est = state.est.filter(e => celWa(e.wa)).map(e => ({ id: 'e' + e.id, wa: celWa(e.wa), titulo: titulo(e.nombre), sub: 'Celular ' + celWa(e.wa).slice(3) + ' · ' + E.nombreArea(e.area) + ' · ' + CURSO[e.curso], texto: msgEstudiante(e), buscar: [e.nombre, e.wa].join(' ') }));
   const por = (a, b) => a.titulo.localeCompare(b.titulo);
-  return { padres: padres.sort(por), profes: prof.sort(por), ests: est.sort(por) };
+  return { padres: padres.sort(por), profes: prof.sort(por), ests: est.sort(por), sinProf: sin };
 }
 
 /* ---------- estado de enviados (solo en este dispositivo) ---------- */
@@ -48,7 +72,7 @@ function renderMsg() {
   document.querySelectorAll('#msg-seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === vistaMsg));
   Object.keys(TITULOS_MSG).forEach(k => { const n = g[k].length, e = g[k].filter(x => enviadosMsg[x.id]).length; $('msg-n-' + k).textContent = e + '/' + n; });
   const env = lista.filter(x => enviadosMsg[x.id]).length;
-  $('msg-res').innerHTML = '<div class="alert ' + (env === lista.length && lista.length ? 'ok' : 'warn') + '"><b>' + TITULOS_MSG[vistaMsg] + ': ' + env + ' enviados de ' + lista.length + '.</b>' + (vistaMsg === 'padres' ? ' Un mensaje por familia: si hay hermanos, el mensaje los nombra a todos.' : '') + '</div>';
+  $('msg-res').innerHTML = '<div class="alert ' + (env === lista.length && lista.length ? 'ok' : 'warn') + '"><b>' + TITULOS_MSG[vistaMsg] + ': ' + env + ' enviados de ' + lista.length + '.</b>' + (vistaMsg === 'padres' ? ' Un mensaje por familia: si hay hermanos, el mensaje los nombra a todos.' : '') + '</div>' + (vistaMsg === 'profes' && g.sinProf.length ? '<div class="alert warn"><b>' + g.sinProf.length + ' estudiantes no tienen profesor asignado</b> (no hay profesor de su área en su colegio). Ellos reciben el aviso solo por sus padres: ' + Object.entries(g.sinProf.reduce((m, e) => { const c = claveCol(e.colegio); m[c] = (m[c] || 0) + 1; return m; }, {})).map(([c, n]) => esc(c) + ' (' + n + ')').join(', ') + '.</div>' : '');
   const vis = lista.filter(x => (!ocultarEnv || !enviadosMsg[x.id]) && (!q || x.buscar.toLowerCase().includes(q)));
   $('msg-lista').innerHTML = vis.length ? vis.map(x => '<div class="card" style="margin:8px 0;' + (enviadosMsg[x.id] ? 'opacity:.6' : '') + '"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><b>' + (enviadosMsg[x.id] ? '✔ ' : '') + esc(x.titulo) + '</b><br><small class="muted">' + esc(x.sub) + '</small></div></div>' +
     '<details style="margin-top:6px"><summary class="muted"><small>Ver mensaje</small></summary><pre style="white-space:pre-wrap;font:inherit;margin:6px 0 0">' + esc(x.texto) + '</pre></details>' +

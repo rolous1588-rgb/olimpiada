@@ -1,11 +1,12 @@
 /* Pestaña "Mensajes": mensajes de WhatsApp listos para enviar a padres, profesores y estudiantes. */
 const FIRMA = 'Ing. Rolando Santillan\nOlimpiadas FICAM 2026';
+const LINK_FORM = '📄 Descargue el formulario aquí: https://drive.google.com/file/d/1W71iCQPR_MxkEKYxp5u-1Jdwk6H8DeKk/view?usp=drivesdk';
 const DOCS_MSG = ['Fotocopia de la cédula de identidad', 'Recibo fiscalizado: original y fotocopia', 'Fotocopia de una boleta de calificaciones de esta gestión', 'Formulario de autorización y consentimiento, firmado (original)'];
 const titulo = t => String(t || '').trim().toLowerCase().replace(/(^|[\s'-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
 const celWa = v => { let d = soloDigitos(v); if (d.length === 11 && d.startsWith('591')) d = d.slice(3); return /^[67]\d{7}$/.test(d) ? '591' + d : ''; };
 const lineaEst = e => '• ' + titulo(e.nombre) + ': ' + E.nombreArea(e.area) + ', ' + CURSO[e.curso] + ' de secundaria';
 const bloqueExamen = () => '📅 *Mañana martes 17 de noviembre se realiza el examen.* El examen inicia a las *9:00 de la mañana* y termina a las *12:00 del mediodía*.\n📍 Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas (*FICAM*), ex-Refisur, Sucre.';
-const bloqueDocs = () => 'Deben llevar *en físico*:\n' + DOCS_MSG.map(x => '• ' + x).join('\n');
+const bloqueDocs = () => 'Deben llevar *en físico*:\n' + DOCS_MSG.map(x => '• ' + x).join('\n') + '\n' + LINK_FORM;
 const bloqueUtiles = ests => { const f = ests.filter(e => e.area === 'FISICA'), q = ests.filter(e => e.area === 'QUIMICA_APLICADA'), n = l => ests.length > 1 ? ' (' + l.map(e => titulo(e.nombre).split(' ')[0]).join(', ') + ')' : ''; return 'Útiles: lápiz, borrador, tajador y bolígrafo.' + (f.length ? '\n*Solo en Física:* calculadora científica sencilla' + n(f) + '.' : '') + (q.length ? '\n*Solo en Química:* pueden llevar calculadora, especialmente en cuarto, quinto y sexto' + n(q) + '.' : ''); };
 
 function msgPadres(ests, tutorNombre) {
@@ -23,7 +24,7 @@ function msgProfesor(ests, nombre) {
   return 'Estimado(a) profesor(a) ' + titulo(nombre) + ':\n\nLe saludo de la Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas (FICAM). Le informo sobre ' + (uno ? 'su estudiante inscrito(a)' : 'sus estudiantes inscritos') + ' en las *Olimpiadas FICAM 2026*:\n' + ests.map(e => lineaEst(e) + (multi ? ' (' + e.colegio + ')' : '')).join('\n') + '\n\n' + bloqueExamen() + '\n\n' + bloqueDocs().replace('Deben llevar', 'Deben llevar los estudiantes') + '\n\n' + bloqueUtiles(ests) + '\n\nLe agradecemos recordárselo a ' + (uno ? 'su estudiante' : 'sus estudiantes') + '. Gracias por su apoyo.\n' + FIRMA;
 }
 function msgEstudiante(e) {
-  return '¡Hola, ' + (e.nombrePila || titulo(e.nombre).split(' ')[0]) + '! Estás ' + (e.generoEst === 'F' ? 'inscrita' : e.generoEst === 'M' ? 'inscrito' : 'inscrito(a)') + ' en las *Olimpiadas FICAM 2026*, área de *' + E.nombreArea(e.area) + '*. ¡Felicitaciones!\n\n' + bloqueExamen() + '\n\nDebes llevar *en físico*:\n' + DOCS_MSG.map(x => '• ' + x).join('\n') + '\n\n' + bloqueUtiles([e]) + '\n\n¡Mucho éxito!\n' + FIRMA;
+  return '¡Hola, ' + (e.nombrePila || titulo(e.nombre).split(' ')[0]) + '! Estás ' + (e.generoEst === 'F' ? 'inscrita' : e.generoEst === 'M' ? 'inscrito' : 'inscrito(a)') + ' en las *Olimpiadas FICAM 2026*, área de *' + E.nombreArea(e.area) + '*. ¡Felicitaciones!\n\n' + bloqueExamen() + '\n\nDebes llevar *en físico*:\n' + DOCS_MSG.map(x => '• ' + x).join('\n') + '\n' + LINK_FORM.replace('Descargue','Descarga') + '\n\n' + bloqueUtiles([e]) + '\n\n¡Mucho éxito!\n' + FIRMA;
 }
 
 /* ---------- asignación de estudiantes a profesores: por colegio y área ---------- */

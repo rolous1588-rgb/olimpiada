@@ -11,9 +11,11 @@ const bloqueUtiles = ests => 'Útiles: lápiz, borrador, tajador y bolígrafo.' 
 function msgPadres(ests, tutorNombre) {
   const uno = ests.length === 1, e0 = ests[0];
   const par = [...new Set(ests.map(x => x.tutorParentesco))];
-  const nom = titulo(tutorNombre), saludo = par.length === 1 && par[0] === 'Madre' ? 'Estimada señora ' + nom : par.length === 1 && par[0] === 'Padre' ? 'Estimado señor ' + nom : 'Estimado(a) señor(a) ' + nom;
-  const intro = uno ? '¡Felicitaciones! Su hijo(a) *' + titulo(e0.nombre) + '* está inscrito(a) en las *Olimpiadas FICAM 2026*, área de *' + E.nombreArea(e0.area) + '* (' + CURSO[e0.curso] + ' de secundaria). Es un logro que refleja su esfuerzo y el de su familia.'
-    : '¡Felicitaciones! Sus hijos(as) están inscritos(as) en las *Olimpiadas FICAM 2026*:\n' + ests.map(lineaEst).join('\n') + '\nEs un logro que refleja su esfuerzo y el de su familia.';
+  const nom = titulo(tutorNombre), gt = ests[0].generoTutor, saludo = gt === 'F' ? 'Estimada señora ' + nom : gt === 'M' ? 'Estimado señor ' + nom : 'Estimado(a) señor(a) ' + nom;
+  const ge = e0.generoEst, hijo = ge === 'F' ? 'hija' : ge === 'M' ? 'hijo' : 'hijo(a)', insc = ge === 'F' ? 'inscrita' : ge === 'M' ? 'inscrito' : 'inscrito(a)';
+  const gs = ests.map(x => x.generoEst), todasF = gs.every(x => x === 'F'), hayNull = gs.some(x => !x), hijos = hayNull ? 'hijos(as)' : todasF ? 'hijas' : 'hijos', inscs = hayNull ? 'inscritos(as)' : todasF ? 'inscritas' : 'inscritos';
+  const intro = uno ? '¡Felicitaciones! Su ' + hijo + ' *' + titulo(e0.nombre) + '* está ' + insc + ' en las *Olimpiadas FICAM 2026*, área de *' + E.nombreArea(e0.area) + '* (' + CURSO[e0.curso] + ' de secundaria). Es un logro que refleja su esfuerzo y el de su familia.'
+    : '¡Felicitaciones! Sus ' + hijos + ' están ' + inscs + ' en las *Olimpiadas FICAM 2026*:\n' + ests.map(lineaEst).join('\n') + '\nEs un logro que refleja su esfuerzo y el de su familia.';
   return saludo + ':\n\n' + intro + '\n\n' + bloqueExamen() + '\n\n' + bloqueDocs().replace('Deben llevar', uno ? 'Debe llevar' : 'Cada estudiante debe llevar') + '\n\n' + bloqueUtiles(ests).replace('Solo en Física', uno ? 'Solo en Física' : 'Solo en Física (' + ests.filter(e => e.area === 'FISICA').map(e => titulo(e.nombre).split(' ')[0]).join(', ') + ')') + '\n\nGracias por su apoyo. Cualquier consulta, escríbame a este número.\n' + FIRMA;
 }
 function msgProfesor(ests, nombre) {
@@ -21,7 +23,7 @@ function msgProfesor(ests, nombre) {
   return 'Estimado(a) profesor(a) ' + titulo(nombre) + ':\n\nLe saludo de la Facultad de Ingeniería y Ciencias Aplicadas Meca-Electrónicas (FICAM). Le informo sobre ' + (uno ? 'su estudiante inscrito(a)' : 'sus estudiantes inscritos') + ' en las *Olimpiadas FICAM 2026*:\n' + ests.map(e => lineaEst(e) + (multi ? ' (' + e.colegio + ')' : '')).join('\n') + '\n\n' + bloqueExamen() + '\n\n' + bloqueDocs().replace('Deben llevar', 'Deben llevar los estudiantes') + '\n\n' + bloqueUtiles(ests) + '\n\nLe agradecemos recordárselo a ' + (uno ? 'su estudiante' : 'sus estudiantes') + '. Gracias por su apoyo.\n' + FIRMA;
 }
 function msgEstudiante(e) {
-  return '¡Hola, ' + titulo(e.nombre).split(' ')[0] + '! Estás inscrito(a) en las *Olimpiadas FICAM 2026*, área de *' + E.nombreArea(e.area) + '*. ¡Felicitaciones!\n\n' + bloqueExamen() + '\n\nDebes llevar *en físico*:\n' + DOCS_MSG.map(x => '• ' + x).join('\n') + '\n\n' + bloqueUtiles([e]) + '\n\n¡Mucho éxito!\n' + FIRMA;
+  return '¡Hola, ' + (e.nombrePila || titulo(e.nombre).split(' ')[0]) + '! Estás ' + (e.generoEst === 'F' ? 'inscrita' : e.generoEst === 'M' ? 'inscrito' : 'inscrito(a)') + ' en las *Olimpiadas FICAM 2026*, área de *' + E.nombreArea(e.area) + '*. ¡Felicitaciones!\n\n' + bloqueExamen() + '\n\nDebes llevar *en físico*:\n' + DOCS_MSG.map(x => '• ' + x).join('\n') + '\n\n' + bloqueUtiles([e]) + '\n\n¡Mucho éxito!\n' + FIRMA;
 }
 
 /* ---------- asignación de estudiantes a profesores: por colegio y área ---------- */
@@ -51,7 +53,7 @@ function asignarProfes() {
 function gruposMsg() {
   const mapa = (arr, clave) => { const m = new Map(); arr.forEach(e => { const k = clave(e); if (!k) return; if (!m.has(k)) m.set(k, []); m.get(k).push(e); }); return m; };
   const ord = a => a.sort((x, y) => x.nombre.localeCompare(y.nombre));
-  const padres = [...mapa(state.est, e => celWa(e.tutorCelular)).entries()].map(([wa, ests]) => ({ id: 'p' + wa, wa, titulo: titulo(ests[0].tutorNombre), sub: 'Celular ' + wa.slice(3) + ' · ' + ests.map(e => titulo(e.nombre) + ' (' + E.nombreArea(e.area) + ')').join(', '), texto: msgPadres(ests, ests[0].tutorNombre), buscar: [ests[0].tutorNombre, ...ests.map(e => e.nombre), wa].join(' ') }));
+  const padres = [...mapa(state.est, e => celWa(e.tutorCelular)).entries()].map(([wa, ests]) => ({ id: 'p' + wa, wa, titulo: titulo(ests[0].tutorNombre), sub: 'Celular ' + wa.slice(3) + ' · ' + ests.map(e => titulo(e.nombre) + ' (' + E.nombreArea(e.area) + ')').join(', ') + (ests[0].generoTutor && ests.every(e => e.generoEst) ? '' : ' · ⚠ género sin confirmar: el saludo sale con (a)'), texto: msgPadres(ests, ests[0].tutorNombre), buscar: [ests[0].tutorNombre, ...ests.map(e => e.nombre), wa].join(' ') }));
   const { res: asig, sin } = asignarProfes();
   const prof = [...asig.values()].map(p => ({ id: 'f' + p.wa, wa: p.wa, titulo: titulo(p.nombre) || 'Profesor', sub: 'Celular ' + p.wa.slice(3) + ' · ' + [...new Set(p.ests.map(e => e.colegio))].join(', ') + ' · ' + p.ests.length + ' estudiante(s)', texto: msgProfesor(ord(p.ests.slice()), p.nombre), buscar: [p.nombre, ...p.ests.map(e => e.colegio + ' ' + e.nombre), p.wa].join(' ') }));
   const est = state.est.filter(e => celWa(e.wa)).map(e => ({ id: 'e' + e.id, wa: celWa(e.wa), titulo: titulo(e.nombre), sub: 'Celular ' + celWa(e.wa).slice(3) + ' · ' + E.nombreArea(e.area) + ' · ' + CURSO[e.curso], texto: msgEstudiante(e), buscar: [e.nombre, e.wa].join(' ') }));

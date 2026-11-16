@@ -12,6 +12,7 @@ function mapRow(r) {
     nota: r.nota == null ? null : +r.nota, registro: Date.parse(r.creado), prefs: r.prefs, comision: r.comision, tutorNombre: r.tutor_nombre, tutorParentesco: r.tutor_parentesco, tutorCelular: r.tutor_celular,
     via: r.via, profesorCi: r.profesor_ci, profesorNombre: r.profesor_nombre, profesorWa: r.profesor_wa, profesorMateria: r.profesor_materia, wa: r.wa,
     pago: r.pago, motivo: r.motivo, tx: r.tx, reenvios: r.reenvios, docs: r.docs || {}, resultado: r.resultado,
+    generoEst: r.genero_est || null, generoTutor: r.genero_tutor || null, nombrePila: r.nombre_pila || null,
     modHasta: r.mod_hasta ? Date.parse(r.mod_hasta) : null, modN: r.mod_n || 0, modUltima: r.mod_ultima ? Date.parse(r.mod_ultima) : null };
 }
 async function cargarInscritos() {

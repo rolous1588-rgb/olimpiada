@@ -16,6 +16,7 @@
 <nav class="tabs" role="tablist" id="a-tabs" hidden>
   <button role="tab" aria-selected="true" data-v="panel">Panel de control</button>
   <button role="tab" aria-selected="false" data-v="sim">Asignación de plazas</button>
+  <button role="tab" aria-selected="false" data-v="msg">Mensajes</button>
   <button role="tab" aria-selected="false" id="a-pin" style="margin-left:auto">Mi PIN</button>
   <button role="tab" aria-selected="false" id="a-salir">Salir</button>
 </nav>
@@ -118,6 +119,21 @@
   </div>
 </section>
 
+<!-- ===================== MENSAJES ===================== -->
+<section class="view" id="v-msg" hidden>
+  <h2>Mensajes de WhatsApp</h2>
+  <p class="muted">Toca <b>Enviar por WhatsApp</b>: se abre el chat con el mensaje ya escrito y solo tienes que enviarlo. La fila queda marcada con ✔ en este teléfono. Con <b>Ver mensaje</b> puedes leer el texto antes de enviarlo.</p>
+  <div class="seg" id="msg-seg" role="group" aria-label="A quién enviar">
+    <button data-k="padres" aria-pressed="true">Padres (<span id="msg-n-padres"></span>)</button>
+    <button data-k="profes" aria-pressed="false">Profesores (<span id="msg-n-profes"></span>)</button>
+    <button data-k="ests" aria-pressed="false">Estudiantes (<span id="msg-n-ests"></span>)</button>
+  </div>
+  <div class="cons" style="margin-top:12px"><div><label for="msg-q">Buscar por nombre, colegio o celular</label><input id="msg-q" autocomplete="off"></div></div>
+  <p style="margin:8px 0"><label><input type="checkbox" id="msg-oc"> Ocultar los ya enviados</label></p>
+  <div id="msg-res"></div>
+  <div id="msg-lista"></div>
+</section>
+
 <!-- ===================== ASIGNACIÓN ===================== -->
 <section class="view" id="v-sim" hidden>
   <h2>Asignación de plazas</h2>
@@ -166,5 +182,6 @@
 <script src="js/engine.js?v=20261109b"></script>
 <script src="js/config.js?v=20261109b"></script>
 <script src="js/common.js?v=20261109b"></script>
-<script src="js/admin.js?v=20261112a"></script>
+<script src="js/admin.js?v=20261116a"></script>
+<script src="js/mensajes.js?v=20261116a"></script>
 </body></html>

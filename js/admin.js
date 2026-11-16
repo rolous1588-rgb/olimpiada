@@ -43,7 +43,7 @@ let tenc; function guardarEnc() { clearTimeout(tenc); tenc = setTimeout(async ()
 
 /* ---------- acceso ---------- */
 let entrado = false;
-function verLogin(msg) { $('v-login').hidden = false; $('a-tabs').hidden = true; ['v-panel', 'v-sim'].forEach(i => ($(i).hidden = true)); if (msg) $('l-msg').innerHTML = msg; }
+function verLogin(msg) { $('v-login').hidden = false; $('a-tabs').hidden = true; ['v-panel', 'v-sim', 'v-msg'].forEach(i => ($(i).hidden = true)); if (msg) $('l-msg').innerHTML = msg; }
 async function iniciar() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { verLogin(); return; }
@@ -91,8 +91,9 @@ sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_IN' && !entrado) iniciar();
 /* ---------- pestañas ---------- */
 function irTab(v) {
   document.querySelectorAll('nav.tabs button[data-v]').forEach(x => x.setAttribute('aria-selected', x.dataset.v === v));
-  ['panel', 'sim'].forEach(k => ($('v-' + k).hidden = k !== v));
+  ['panel', 'sim', 'msg'].forEach(k => ($('v-' + k).hidden = k !== v));
   if (v === 'panel') renderPanel();
+  if (v === 'msg') renderMsg();
   if (v === 'sim') { renderSim(); renderEnc(); }
 }
 document.querySelectorAll('nav.tabs button[data-v]').forEach(b => b.addEventListener('click', () => irTab(b.dataset.v)));

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
+<title>Validación FICAM</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Concepto: mesa de control de recepción. Lista ordenada por Nº de recibo, ficha única por estudiante, casillas grandes para pulgar. */
+:root{
+  --bg:#f4f5f3; --surface:#ffffff; --fg:#1b2420; --muted:#5d6a63; --line:#d9ded9;
+  --accent:#0f5c4d; --accent-fg:#ffffff; --accent-soft:#dcefe9;
+  --ok:#1f7a45; --ok-soft:#dff2e5; --warn:#a65a00; --warn-soft:#fbead2; --bad:#b3261e; --bad-soft:#fbe1de;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-head:'Space Grotesk','Inter',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121816; --surface:#1a221f; --fg:#e8eeea; --muted:#9aa8a0; --line:#2c3833;
+  --accent:#5fc4ab; --accent-fg:#0b1512; --accent-soft:#1b332d;
+  --ok:#6fd195; --ok-soft:#173225; --warn:#f0b04e; --warn-soft:#3a2a10; --bad:#ff8a80; --bad-soft:#3d1c19; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121816; --surface:#1a221f; --fg:#e8eeea; --muted:#9aa8a0; --line:#2c3833;
+  --accent:#5fc4ab; --accent-fg:#0b1512; --accent-soft:#1b332d;
+  --ok:#6fd195; --ok-soft:#173225; --warn:#f0b04e; --warn-soft:#3a2a10; --bad:#ff8a80; --bad-soft:#3d1c19; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.4;
+  padding-block:0 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:720px;margin:0 auto}
+.draft{background:var(--warn-soft);color:var(--warn);font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:6px;margin:12px 0}
+header{padding:8px 0 4px}
+h1{font-family:var(--font-head);font-size:22px;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.prog{margin:12px 0 4px}
+.prog-top{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .v{background:var(--ok)} .bar .o{background:var(--warn)}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 8px}
+.filters .full{grid-column:1/-1}
+input[type=text],input[type=search],select,textarea{width:100%;font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:11px 12px;min-height:44px}
+textarea{min-height:84px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible,.chk:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.row{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:inherit;font:inherit;cursor:pointer}
+.row:hover{border-color:var(--accent)}
+.rec{font-family:var(--font-head);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;color:var(--accent)}
+.rec small{display:block;font-family:var(--font-body);font-weight:500;font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.nm{font-weight:600}
+.meta{font-size:12.5px;color:var(--muted)}
+.pill{font-size:12px;font-weight:600;padding:4px 9px;border-radius:99px;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)} .p-ob{background:var(--warn-soft);color:var(--warn)} .p-no{background:var(--line);color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:28px 0}
+/* ficha */
+.back{background:none;border:0;color:var(--accent);font:inherit;font-weight:600;padding:12px 0;cursor:pointer}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:2px 0 12px}
+.head .rec{font-size:34px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.card h2{font-family:var(--font-head);font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chk{display:flex;gap:12px;align-items:center;min-height:48px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;margin-top:8px;cursor:pointer;background:var(--bg)}
+.chk input{width:24px;height:24px;accent-color:var(--accent);flex:none}
+.chk span{font-weight:500}
+.chk small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.chk.on{background:var(--ok-soft);border-color:var(--ok)}
+.reg{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);margin-top:4px}
+.changed{color:var(--warn);font-weight:600}
+.photo{display:flex;gap:10px;align-items:center}
+.photo img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.btn{font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:12px 14px;min-height:46px;cursor:pointer}
+.btn.pri{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.nav{display:flex;gap:8px;margin-top:6px}.nav .btn{flex:1}
+.sticky{position:sticky;bottom:0;padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 22%)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:600;font-size:14px}
+
+.err{background:var(--bad-soft);color:var(--bad);padding:14px;border-radius:10px;margin-top:20px;font-weight:600}
+.btn:disabled{opacity:.45}
+</style></head><body>
+<div class="wrap">
+  
+
+  <section id="v-list">
+    <header>
+      <h1>Validación de inscritos</h1>
+      <div class="sub">Olimpiadas FICAM 2026 · ordenado por Nº de recibo</div>
+    </header>
+    <div class="prog">
+      <div class="prog-top"><span id="p-txt"></span><span id="p-obs"></span></div>
+      <div class="bar" aria-hidden="true"><i class="v" id="b-v"></i><i class="o" id="b-o"></i></div>
+    </div>
+    <div class="filters">
+      <input class="full" type="search" id="q" placeholder="Buscar por nombre, carnet o Nº de recibo" aria-label="Buscar">
+      <select id="f-area" aria-label="Área"><option value="">Todas las áreas</option><option value="FISICA">Física</option><option value="QUIMICA_APLICADA">Química Aplicada</option><option value="MATEMATICAS">Matemáticas</option><option value="ROBOTICA">Robótica</option><option value="BIOINGENIERIA">Bioingeniería</option></select>
+      <select id="f-curso" aria-label="Curso"><option value="">Todos los cursos</option><option value="3">3º</option><option value="4">4º</option><option value="5">5º</option><option value="6">6º</option></select>
+      <label class="toggle full"><input type="checkbox" id="f-pend"> Mostrar solo los que faltan validar</label>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section id="v-det" hidden></section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="js/config.js?v=20261117a"></script>
+<script>
+const DOCS=[['ced','Cédula de identidad','Fotocopia'],['rec','Recibo fiscalizado','Original y fotocopia'],['bol','Boleta de calificaciones','Fotocopia, gestión actual'],['for','Formulario de autorización y consentimiento','Original, firmado']];
+const AREAS={FISICA:'Física',QUIMICA_APLICADA:'Química Aplicada',MATEMATICAS:'Matemáticas',ROBOTICA:'Robótica',BIOINGENIERIA:'Bioingeniería'};
+const K=new URLSearchParams(location.search).get('k')||'';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function rpc(fn,args){
+  const r=await fetch(CONFIG.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:CONFIG.key,Authorization:'Bearer '+CONFIG.key,'Content-Type':'application/json'},body:JSON.stringify(args)});
+  const j=await r.json().catch(()=>null);
+  if(!r.ok)throw new Error((j&&j.message)||'Error de conexión');
+  return j;
+}
+let S=[],cur=null,foto=null;
+const por=()=>{try{return localStorage.getItem('val_por')||''}catch(e){return''}};
+function estado(s){const v=s.val;return !v?'no':(v.ok&&!v.obs?'ok':'ob')}
+const lbl=e=>e==='ok'?'Validado':e==='ob'?'Con observación':'Sin validar';
+const cls=e=>e==='ok'?'p-ok':e==='ob'?'p-ob':'p-no';
+function lista(){
+  const q=$('q').value.trim().toLowerCase(),a=$('f-area').value,c=$('f-curso').value,p=$('f-pend').checked;
+  const L=S.filter(s=>(!q||(s.nombre+' '+s.ci+' '+s.tx).toLowerCase().includes(q))&&(!a||s.area===a)&&(!c||String(s.curso)===c)&&(!p||estado(s)==='no'));
+  $('list').innerHTML=L.length?L.map(s=>{const e=estado(s);return `<button class="row" data-id="${s.id}"><div class="rec"><small>Recibo</small>${esc(s.tx)}</div><div><div class="nm">${esc(s.nombre)}</div><div class="meta">${esc(AREAS[s.area]||s.area)} · ${s.curso}º · ${esc(s.colegio)}</div></div><span class="pill ${cls(e)}">${lbl(e)}</span></button>`}).join(''):'<div class="empty">Ningún estudiante coincide con la búsqueda.</div>';
+  const ok=S.filter(s=>estado(s)==='ok').length,ob=S.filter(s=>estado(s)==='ob').length,n=S.length||1;
+  $('p-txt').textContent=`${ok+ob} de ${S.length} revisados`;$('p-obs').textContent=ob?`${ob} con observación`:'';
+  $('b-v').style.width=ok/n*100+'%';$('b-o').style.width=ob/n*100+'%';
+}
+function comprimir(file){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const m=1100,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.6))};im.onerror=()=>rej(new Error('No se pudo leer la imagen'));im.src=u})}
+function ficha(id){
+  const i=S.findIndex(s=>s.id===id),s=S[i];cur=id;foto=null;const v=s.val||{},d=v.chk||{};
+  const chk=(k,t,sub,on)=>`<label class="chk ${on?'on':''}"><input type="checkbox" data-k="${k}" ${on?'checked':''}><span>${t}${sub?`<small>${sub}</small>`:''}</span></label>`;
+  $('v-det').innerHTML=`
+  <button class="back" id="back">← Volver a la lista</button>
+  <div class="head"><div class="rec"><small>Nº de recibo</small>${esc(s.tx)}</div><span class="pill ${cls(estado(s))}">${lbl(estado(s))}</span></div>
+  <div class="card"><h2>1 · Identidad (contra la cédula)</h2>
+    <label class="f" for="d-nom">Nombre completo, con apellidos y ortografía exactos</label>
+    <input type="text" id="d-nom" value="${esc(s.nombre)}">
+    <div class="reg"><span>Registrado: ${esc(s.nombre)}</span><span class="changed" id="c-nom"></span></div>
+    ${chk('nom','El nombre completo coincide exactamente con la cédula','Apellido paterno, materno y nombres',d.nom)}
+    <label class="f" for="d-ci">Número de carnet</label>
+    <input type="text" id="d-ci" inputmode="numeric" value="${esc(s.ci)}">
+    <div class="reg"><span>Registrado: ${esc(s.ci)}</span><span class="changed" id="c-ci"></span></div>
+    ${chk('ci','El carnet coincide con la cédula','',d.ci)}
+  </div>
+  <div class="card"><h2>2 · Colegio y curso (contra la boleta)</h2>
+    <label class="f" for="d-col">Colegio</label>
+    <input type="text" id="d-col" value="${esc(s.colegio)}">
+    <div class="reg"><span>Registrado: ${esc(s.colegio)}</span><span class="changed" id="c-col"></span></div>
+    <div class="grid2"><div><label class="f" for="d-cur">Curso</label><select id="d-cur">${[3,4,5,6].map(n=>`<option value="${n}" ${n===s.curso?'selected':''}>${n}º de secundaria</option>`).join('')}</select></div>
+    <div><label class="f" for="d-area">Área</label><select id="d-area">${Object.entries(AREAS).map(([c,n])=>`<option value="${c}" ${c===s.area?'selected':''}>${n}</option>`).join('')}</select></div></div>
+    ${chk('col','Colegio y curso coinciden con la boleta','',d.col)}
+  </div>
+  <div class="card"><h2>3 · Documentos solicitados</h2>${DOCS.map(x=>chk(x[0],x[1],x[2],d[x[0]])).join('')}</div>
+  <div class="card"><h2>4 · Pago</h2>
+    <label class="f" for="d-rec">Número de recibo (como figura en el recibo físico)</label>
+    <input type="text" id="d-rec" inputmode="numeric" value="${esc(s.tx)}">
+    <div class="reg"><span>Registrado: ${esc(s.tx)}</span><span class="changed" id="c-rec"></span></div>
+    ${chk('pago','Recibo a nombre del estudiante, por Bs 20','Marca el pago como verificado',d.pago||(!v.por&&s.pago==='verificado'))}
+    <label class="f" for="d-foto">Foto del recibo o de un documento (opcional)${v.foto?' · ya hay una foto guardada':''}</label>
+    <div class="photo"><input type="file" id="d-foto" accept="image/*" capture="environment"><img id="foto-prev" alt="" hidden></div>
+  </div>
+  <div class="card"><h2>5 · Observación</h2>
+    <label class="f" for="d-obs">Anotar cualquier cosa anormal (letra ilegible, documento faltante, firma distinta, recibo repetido…)</label>
+    <textarea id="d-obs" maxlength="1000" placeholder="Si todo está normal, déjalo vacío.">${esc(v.obs||'')}</textarea>
+    <label class="f" for="d-by">Validado por</label>
+    <input type="text" id="d-by" placeholder="Tu nombre" maxlength="60" value="${esc(por()||v.por||'')}">
+  </div>
+  <div class="nav"><button class="btn" id="prev" ${i===0?'disabled':''}>← Recibo anterior</button><button class="btn" id="next" ${i===S.length-1?'disabled':''}>Siguiente recibo →</button></div>
+  <div class="sticky"><button class="btn pri" id="save" style="width:100%">Guardar validación</button></div>`;
+  $('v-list').hidden=true;$('v-det').hidden=false;window.scrollTo(0,0);
+  $('v-det').querySelectorAll('.chk input').forEach(c=>c.addEventListener('change',()=>c.closest('.chk').classList.toggle('on',c.checked)));
+  [['nom','nombre'],['ci','ci'],['col','colegio'],['rec','tx']].forEach(([f,k])=>{const el=$('d-'+f);el.addEventListener('input',()=>{$('c-'+f).textContent=el.value.trim()!==String(s[k])?'Modificado':''})});
+  $('d-foto').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{foto=await comprimir(f);$('foto-prev').src=foto;$('foto-prev').hidden=false}catch(x){toast(x.message)}});
+  $('back').onclick=()=>{$('v-det').hidden=true;$('v-list').hidden=false;lista();window.scrollTo(0,0)};
+  $('prev').onclick=()=>ficha(S[i-1].id);$('next').onclick=()=>ficha(S[i+1].id);
+  $('save').onclick=()=>guardar(i);
+}
+async function guardar(i){
+  const s=S[i],btn=$('save'),who=$('d-by').value.trim();
+  if(who.length<2){toast('Escribe tu nombre en "Validado por"');$('d-by').focus();return}
+  const chk={};$('v-det').querySelectorAll('.chk input').forEach(c=>chk[c.dataset.k]=c.checked);
+  const obs=$('d-obs').value.trim();
+  const p={nombre:$('d-nom').value.trim(),ci:$('d-ci').value.trim(),colegio:$('d-col').value.trim(),curso:+$('d-cur').value,area:$('d-area').value,tx:$('d-rec').value.trim(),por:who,obs,chk,foto:foto||''};
+  btn.disabled=true;btn.textContent='Guardando…';
+  try{
+    const r=await rpc('of_val_guardar',{p_k:K,p_id:s.id,p});
+    if(!r.ok)throw new Error('El enlace ya no es válido.');
+    try{localStorage.setItem('val_por',who)}catch(e){}
+    const all=Object.values(chk).every(Boolean);
+    Object.assign(s,{nombre:p.nombre.replace(/\s+/g,' '),ci:p.ci.replace(/\s+/g,''),colegio:p.colegio.replace(/\s+/g,' '),curso:p.curso,area:p.area,tx:p.tx,pago:chk.pago?'verificado':(s.pago==='verificado'?'pendiente':s.pago)});
+    s.val={chk,ok:all,obs:obs||null,por:who,foto:!!(foto||(s.val&&s.val.foto))};
+    toast(all&&!obs?'Validado ✔':'Guardado con observación');
+    if(i<S.length-1)ficha(S[i+1].id);else $('back').click();
+  }catch(e){toast(e.message);btn.disabled=false;btn.textContent='Guardar validación'}
+}
+function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,3000)}
+async function init(){
+  try{const r=await rpc('of_val_listar',{p_k:K});if(!r.ok)throw 0;S=r.items;
+    $('list').addEventListener('click',e=>{const b=e.target.closest('.row');if(b)ficha(b.dataset.id)});
+    ['q','f-area','f-curso','f-pend'].forEach(id=>$(id).addEventListener('input',lista));
+    lista();
+  }catch(e){$('v-list').innerHTML='<div class="err">Este enlace no es válido o fue desactivado. Pide el enlace correcto al ingeniero Rolando Santillán.</div>'}
+}
+init();
+</script></body></html>

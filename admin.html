@@ -17,6 +17,7 @@
   <button role="tab" aria-selected="true" data-v="panel">Panel de control</button>
   <button role="tab" aria-selected="false" data-v="sim">Asignación de plazas</button>
   <button role="tab" aria-selected="false" data-v="msg">Mensajes</button>
+  <button role="tab" aria-selected="false" data-v="val">Validación</button>
   <button role="tab" aria-selected="false" id="a-pin" style="margin-left:auto">Mi PIN</button>
   <button role="tab" aria-selected="false" id="a-salir">Salir</button>
 </nav>
@@ -135,6 +136,17 @@
 </section>
 
 <!-- ===================== ASIGNACIÓN ===================== -->
+<section class="view" id="v-val" hidden>
+  <div class="card"><h3>Enlace para los validadores</h3>
+    <p class="muted">Compártelo solo con tus estudiantes (WhatsApp). Quien tenga el enlace puede validar y corregir datos. Si se filtra, anúlalo o genera uno nuevo.</p>
+    <p><input id="val-link" readonly style="width:100%"></p>
+    <p><button class="btn red sm" id="val-copy" type="button">Copiar enlace</button> <button class="btn ghost sm" id="val-regen" type="button">Generar enlace nuevo</button> <button class="btn ghost sm" id="val-toggle" type="button">Anular</button> <span id="val-est" class="muted"></span></p></div>
+  <div class="card"><h3>Progreso</h3><div id="val-res"></div>
+    <p><button class="btn ghost sm" id="val-csv" type="button">Descargar Excel (CSV)</button> <button class="btn ghost sm" id="val-rec" type="button">Actualizar</button></p></div>
+  <div class="card"><h3>Con observación o documentos faltantes</h3><div id="val-obs"></div></div>
+  <div class="card"><h3>Últimos cambios de datos</h3><div class="tw" id="val-log"></div></div>
+</section>
+
 <section class="view" id="v-sim" hidden>
   <h2>Asignación de plazas</h2>
   <p class="muted">Cálculo con las notas del examen presencial cargadas. Solo sexto de secundaria entra a la admisión especial.</p>
@@ -184,4 +196,5 @@
 <script src="js/common.js?v=20261109b"></script>
 <script src="js/admin.js?v=20261116f"></script>
 <script src="js/mensajes.js?v=20261116f"></script>
+<script src="js/validacion.js?v=20261117a"></script>
 </body></html>

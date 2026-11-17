@@ -92,9 +92,10 @@ sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_IN' && !entrado) iniciar();
 /* ---------- pestañas ---------- */
 function irTab(v) {
   document.querySelectorAll('nav.tabs button[data-v]').forEach(x => x.setAttribute('aria-selected', x.dataset.v === v));
-  ['panel', 'sim', 'msg'].forEach(k => ($('v-' + k).hidden = k !== v));
+  ['panel', 'sim', 'msg', 'val'].forEach(k => ($('v-' + k).hidden = k !== v));
   if (v === 'panel') renderPanel();
   if (v === 'msg') renderMsg();
+  if (v === 'val' && window.cargarVal) cargarVal();
   if (v === 'sim') { renderSim(); renderEnc(); }
 }
 document.querySelectorAll('nav.tabs button[data-v]').forEach(b => b.addEventListener('click', () => irTab(b.dataset.v)));

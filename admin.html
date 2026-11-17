@@ -18,6 +18,7 @@
   <button role="tab" aria-selected="false" data-v="sim">Asignación de plazas</button>
   <button role="tab" aria-selected="false" data-v="msg">Mensajes</button>
   <button role="tab" aria-selected="false" data-v="val">Validación</button>
+  <button role="tab" aria-selected="false" data-v="asi">Asistencia</button>
   <button role="tab" aria-selected="false" id="a-pin" style="margin-left:auto">Mi PIN</button>
   <button role="tab" aria-selected="false" id="a-salir">Salir</button>
 </nav>
@@ -147,6 +148,24 @@
   <div class="card"><h3>Últimos cambios de datos</h3><div class="tw" id="val-log"></div></div>
 </section>
 
+<section class="view" id="v-asi" hidden>
+  <div class="card"><h3>Asistencia al examen</h3><div id="as-res"></div>
+    <p><input id="as-q" type="search" placeholder="Buscar por nombre o carnet" style="width:100%"></p>
+    <p><label><input type="checkbox" id="as-pend"> Mostrar solo los sin marcar</label></p>
+    <p><button class="btn red sm" id="as-add" type="button">+ Agregar no inscrito</button> <button class="btn ghost sm" id="as-csv" type="button">Descargar Excel (CSV)</button></p>
+    <div id="as-form" hidden class="card">
+      <p><input id="af-nom" placeholder="Nombre completo" style="width:100%"></p>
+      <p><input id="af-ci" placeholder="Carnet" inputmode="numeric" style="width:100%"></p>
+      <p><input id="af-col" placeholder="Colegio" style="width:100%"></p>
+      <p><select id="af-cur"><option value="3">3º</option><option value="4">4º</option><option value="5">5º</option><option value="6">6º</option></select>
+      <select id="af-area"><option value="FISICA">Física</option><option value="QUIMICA_APLICADA">Química Aplicada</option><option value="MATEMATICAS">Matemáticas</option><option value="ROBOTICA">Robótica</option><option value="BIOINGENIERIA">Bioingeniería</option></select></p>
+      <p><input id="af-tx" placeholder="Nº de recibo (si tiene)" style="width:100%"></p>
+      <p><button class="btn red sm" id="af-ok" type="button">Registrar y marcar presente</button> <button class="btn ghost sm" id="af-no" type="button">Cancelar</button> <span id="af-m" class="muted"></span></p>
+    </div>
+  </div>
+  <div id="as-lista"></div>
+</section>
+
 <section class="view" id="v-sim" hidden>
   <h2>Asignación de plazas</h2>
   <p class="muted">Cálculo con las notas del examen presencial cargadas. Solo sexto de secundaria entra a la admisión especial.</p>
@@ -197,4 +216,5 @@
 <script src="js/admin.js?v=20261116f"></script>
 <script src="js/mensajes.js?v=20261116f"></script>
 <script src="js/validacion.js?v=20261117a"></script>
+<script src="js/asistencia.js?v=20261117a"></script>
 </body></html>
